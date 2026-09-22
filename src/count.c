@@ -381,7 +381,7 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 	// open fasta file
 	gzFile fp;
 	fp = fa_fn == 0 || strcmp(fa_fn, "-") == 0? gzdopen(0, "r") : gzopen(fa_fn, "r");
-	if (fp == 0) return 0;
+	if (fp == 0) return;
 	pl.ks = kseq_init(fp);
 	pl.fa_fn = fa_fn;
 

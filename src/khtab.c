@@ -25,6 +25,17 @@ pg_mkht_t *pg_mkht_init(int k, int pre, int w)
 	return h;
 }
 
+void pg_kiht1_destroy(pg_kiht1_t *ih)
+{
+    khint_t k;
+    for (k = 0; k < kh_end(ih->ih); ++k) {
+        if (!kh_exist(ih->ih, k)) continue;
+        kci_t *info = &kh_val(ih->ih, k);
+        free(info->i);
+    }
+    pg_kiht_destroy(ih->ih);
+}
+
 void pg_mkht_destroy(pg_mkht_t *h, int w)
 {
 	int i;
@@ -39,17 +50,6 @@ void pg_mkht_destroy(pg_mkht_t *h, int w)
 		}
 	}
 	free(h->h); free(h->ih); free(h);
-}
-
-void pg_kiht1_destroy(pg_kiht1_t *ih)
-{
-    khint_t k;
-    for (k = 0; k < kh_end(ih->ih); ++k) {
-        if (!kh_exist(ih->ih, k)) continue;
-        kci_t *info = &kh_val(ih->ih, k);
-        free(info->i);
-    }
-    pg_kiht_destroy(ih->ih);
 }
 
 int pg_mkht_insert_list(pg_mkht_t *h, int n, const seq_t *a, seq_info_t *b, int w)

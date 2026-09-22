@@ -64,7 +64,6 @@ bedmap1_t *bed_read(const char *fn)
 	char *line = 0;
 	size_t sz = 0;
 	bedmap1_t *b;
-	int32_t i;
     khint_t kit;
 
 	fp = fopen(fn, "r");
@@ -75,7 +74,7 @@ bedmap1_t *bed_read(const char *fn)
 
 	while (getline(&line, &sz, fp) > 0) {
 		char *name, *p, *q, *save = 0;
-		int32_t start, end, idx;
+		int32_t start, end;
 		int absent;
 		bed_ctg_t *c;
 
