@@ -1,0 +1,29 @@
+import os
+from snakemake.utils import min_version
+
+WORKDIR = "/hlilab/gianfranco/pgkmc/workflows/hmn_centromere"
+configfile: os.path.join(WORKDIR, "config/config.yaml")
+min_version(config["snakemake_min_version"])
+
+DATADIR = config["fa_folder"]
+hap_list = [l.strip() for l in open(config["hap_list_path"])]
+sample_list = [l.strip() for l in open(config["sample_list_path"])]
+
+wildcard_constraints:
+    region = "centromeric|pericentromeric",
+    chr = r"chr[0-9XYM]+"
+
+include: "rules/prepare.smk"
+include: "rules/cm.smk"
+
+rule all:
+    input:
+        expand(
+            os.path.join(WORKDIR, "results/gtype/centromeres/{sample}/genotype.tsv"),
+            sample=sample_list
+        )
+        # expand(
+        #     os.path.join(WORKDIR, "results/rare_kmers/centromeres/{chr}/{sample}.centromeric.kmers.tsv.gz"),
+        #     chr=config["chroms"],
+        #     sample=sample_list
+        # )

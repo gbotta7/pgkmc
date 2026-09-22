@@ -1,0 +1,323 @@
+Unlocked working directory.
+Assuming unrestricted shared filesystem usage.
+
+SNAKEMAKE
+=========
+  Date: 2026-09-22 09:25:28
+  Workflow ID: 4ee96fd1-83f0-4319-8791-98ffc3c2cff2
+  Platform: Linux-3.10.0-693.2.2.el7.x86_64-x86_64-with-glibc2.17
+  Host: node10
+  User: gianfranco
+  Snakemake version: 9.23.0
+  Python version: 3.13.14 | packaged by conda-forge | (main, Jun 12 2026, 09:50:25) [GCC 14.3.0]
+  Command: /homes2/gianfranco/miniforge3/envs/snakemake/bin/snakemake --use-conda --cores 64 --rerun-incomplete
+  Snakefile: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/Snakefile
+  Base directory: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere
+  Run directory: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere
+  Working directory: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere
+  Config file(s): ['/hlilab/gianfranco/pgkmc/workflows/hmn_centromere/config/config.yaml']
+  Config MD5: d331de4f430db989fa2682027f01a7da
+
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however important for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 64
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+merge_snpmers           1
+genotype_samples       53
+all                     1
+total                  55
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Tue Sep 22 09:25:47 2026]
+localrule merge_snpmers:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr1/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr2/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr3/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr4/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr5/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr6/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr7/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr8/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr9/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr10/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr11/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr12/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr13/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr14/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr15/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr16/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr17/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr18/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr19/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr20/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr21/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr22/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr1/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr2/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr3/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr4/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr5/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr6/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr7/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr8/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr9/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr10/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr11/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr12/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr13/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr14/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr15/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr16/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr17/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr18/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr19/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr20/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr21/cenhaps_tree_structure.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr22/cenhaps_tree_structure.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    log: logs/snps/centromeres/chr_all/merge_snpmers.log
+    jobid: 2
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    resources: tmpdir=/tmp
+[Tue Sep 22 09:25:48 2026]
+Finished jobid: 2 (Rule: merge_snpmers)
+1 of 55 steps (2%) done
+Select jobs to execute...
+Execute 21 jobs...
+
+[Tue Sep 22 09:25:48 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240239/HG00321.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00321/genotype.tsv
+    log: logs/gtype/centromeres/HG00321/genotype.log
+    jobid: 16
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00321/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG00321
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:48 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3242722/HG03874.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03874/genotype.tsv
+    log: logs/gtype/centromeres/HG03874/genotype.log
+    jobid: 46
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03874/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG03874
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:48 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240254/HG00350.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00350/genotype.tsv
+    log: logs/gtype/centromeres/HG00350/genotype.log
+    jobid: 20
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00350/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv; Set of input files has changed since last execution
+    wildcards: sample=HG00350
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:48 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240115/HG00097.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00097/genotype.tsv
+    log: logs/gtype/centromeres/HG00097/genotype.log
+    jobid: 1
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00097/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG00097
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:48 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240151/HG00146.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00146/genotype.tsv
+    log: logs/gtype/centromeres/HG00146/genotype.log
+    jobid: 8
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00146/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG00146
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:48 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240108/NA21093.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/NA21093/genotype.tsv
+    log: logs/gtype/centromeres/NA21093/genotype.log
+    jobid: 50
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/NA21093/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=NA21093
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:48 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3242174/HG02178.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG02178/genotype.tsv
+    log: logs/gtype/centromeres/HG02178/genotype.log
+    jobid: 28
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG02178/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG02178
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3241788/HG00280.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00280/genotype.tsv
+    log: logs/gtype/centromeres/HG00280/genotype.log
+    jobid: 13
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00280/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG00280
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3242584/HG03583.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03583/genotype.tsv
+    log: logs/gtype/centromeres/HG03583/genotype.log
+    jobid: 43
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03583/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG03583
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3242620/HG03195.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03195/genotype.tsv
+    log: logs/gtype/centromeres/HG03195/genotype.log
+    jobid: 36
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03195/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG03195
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3241840/HG01167.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG01167/genotype.tsv
+    log: logs/gtype/centromeres/HG01167/genotype.log
+    jobid: 21
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG01167/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG01167
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240141/HG00133.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00133/genotype.tsv
+    log: logs/gtype/centromeres/HG00133/genotype.log
+    jobid: 6
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00133/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG00133
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240057/NA21102.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/NA21102/genotype.tsv
+    log: logs/gtype/centromeres/NA21102/genotype.log
+    jobid: 51
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/NA21102/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=NA21102
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3242280/HG02391.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG02391/genotype.tsv
+    log: logs/gtype/centromeres/HG02391/genotype.log
+    jobid: 29
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG02391/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG02391
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3243152/HG00290.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00290/genotype.tsv
+    log: logs/gtype/centromeres/HG00290/genotype.log
+    jobid: 14
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00290/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG00290
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3242914/HG03742.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03742/genotype.tsv
+    log: logs/gtype/centromeres/HG03742/genotype.log
+    jobid: 44
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03742/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG03742
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3242539/HG03209.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03209/genotype.tsv
+    log: logs/gtype/centromeres/HG03209/genotype.log
+    jobid: 37
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG03209/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG03209
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3241936/HG01530.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG01530/genotype.tsv
+    log: logs/gtype/centromeres/HG01530/genotype.log
+    jobid: 22
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG01530/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG01530
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240146/HG00140.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00140/genotype.tsv
+    log: logs/gtype/centromeres/HG00140/genotype.log
+    jobid: 7
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG00140/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG00140
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3240061/NA21106.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/NA21106/genotype.tsv
+    log: logs/gtype/centromeres/NA21106/genotype.log
+    jobid: 52
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/NA21106/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=NA21106
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+
+[Tue Sep 22 09:25:49 2026]
+localrule genotype_samples:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv, /1000gen/refs/1000genomes_GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa, /1000gen/data/aligned_BAMs/ERR324/ERR3242281/HG02392.final.cram
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG02392/genotype.tsv
+    log: logs/gtype/centromeres/HG02392/genotype.log
+    jobid: 30
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/gtype/centromeres/HG02392/genotype.tsv; Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_snpmers.tsv, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr_all/cenhaps_tree_structure.tsv
+    wildcards: sample=HG02392
+    threads: 3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/beb962429705ba1e877474f9ca23f414_
+Select jobs to execute...
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
+samtools fastq: Coordinate sorted file.  Read pairs may be out of order
