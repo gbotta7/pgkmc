@@ -36,7 +36,6 @@ void pg_opt_init(pg_opt_t *o)
 	o->msf = 0.95;  // total allelic frequency
     o->maf = 0;     // minimum allelic frequency
     o->snp = 0;
-    o->mko = F_GNM_COUNTER_MAX;
 	o->pre = 10;
 	o->filt_type = 0;
 	o->n_threads = 3;
@@ -55,4 +54,29 @@ int64_t mm_parse_num(const char *str)
     else if (*p == 'M' || *p == 'm') x *= 1e6;
     else if (*p == 'K' || *p == 'k') x *= 1e3;
     return (int64_t)(x + .499);
+}
+
+void sample_name_from_path(const char *gnm_fn, char *out, size_t out_sz)
+{
+    const char *bname = strrchr(gnm_fn, '/');
+    bname = bname ? bname + 1 : gnm_fn;
+
+    strncpy(out, bname, out_sz - 1);
+    out[out_sz - 1] = '\0';
+
+    // strip .gz if present
+    size_t len = strlen(out);
+    if (len > 3 && strcmp(out + len - 3, ".gz") == 0)
+        out[len - 3] = '\0';
+
+    // strip .fa, .fna, or .fasta
+    static const char *fa_exts[] = { ".fasta", ".fna", ".fa", NULL };
+    for (int i = 0; fa_exts[i]; i++) {
+        len = strlen(out);
+        size_t elen = strlen(fa_exts[i]);
+        if (len > elen && strcmp(out + len - elen, fa_exts[i]) == 0) {
+            out[len - elen] = '\0';
+            break;
+        }
+    }
 }

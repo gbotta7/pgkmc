@@ -61,4 +61,6 @@ void pg_opt_init(pg_opt_t *o);
 extern unsigned char seq_nt4_table[256];
 extern char nt4_seq_table[5];
 
+void sample_name_from_path(const char *gnm_fn, char *out, size_t out_sz);
+
 #endif // UTILS_H

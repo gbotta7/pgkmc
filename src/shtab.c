@@ -199,7 +199,7 @@ int64_t pg_msht_insert_list(pg_msht_t *h, int n, const seq_t *a, int f)
 }
 
 
-void pg_msht_clear1(pg_msht_t *h, long i, int f, int max_occ) // first pass
+void pg_msht_clear1(pg_msht_t *h, long i, int f) // first pass
 {
 	// store entries to delete
 	pg_sht1_t *g = &h->h[i];
@@ -220,27 +220,24 @@ void pg_msht_clear1(pg_msht_t *h, long i, int f, int max_occ) // first pass
 
 		// filters list
 		if (f == 0) { // the mildest filter, keep everything that has counts larger than 0 and minimum than max_occ if passed
-			if (gnm_cnt1 > 0 && gnm_cnt1 <= max_occ) {
+			if (gnm_cnt1 > 0) {
 				if (pgnm_cnt1 < F_PGNM_COUNTER_MAX) {
 					pgnm_cnt1++;
 				}
 			}
-			if (gnm_cnt2 > 0 && gnm_cnt2 <= max_occ) {
+			if (gnm_cnt2 > 0) {
 				if (pgnm_cnt2 < F_PGNM_COUNTER_MAX) {
 					pgnm_cnt2++;
 				}
 			}
-			if (gnm_cnt1 > max_occ || gnm_cnt2 > max_occ) {
-				filt = 1;
-			}
 		} else if (f == 1) {
-			if (gnm_cnt1 > 0 && gnm_cnt2 > 0 || (gnm_cnt1 > max_occ || gnm_cnt2 > max_occ)) {
+			if (gnm_cnt1 > 0 && gnm_cnt2 > 0) {
 				filt = 1;
-			} else if (gnm_cnt1 > 0 && gnm_cnt1 <= max_occ && gnm_cnt2 == 0) {
+			} else if (gnm_cnt1 > 0 && gnm_cnt2 == 0) {
 				if (pgnm_cnt1 < F_PGNM_COUNTER_MAX) {
 					pgnm_cnt1++;
 				}
-			} else if (gnm_cnt1 == 0 && gnm_cnt2 > 0 && gnm_cnt2 <= max_occ) {
+			} else if (gnm_cnt1 == 0 && gnm_cnt2 > 0) {
 				if (pgnm_cnt2 < F_PGNM_COUNTER_MAX) {
 					pgnm_cnt2++;
 				}
@@ -308,22 +305,22 @@ void pg_msht_tighten(pg_msht_t *h)
 }
 
 
-void pg_msht_rearrange(pg_msht_t *h, long i)
-{
-	// store entries to delete
-	pg_sht1_t *g = &h->h[i];
-	khint_t k;
-	for (k = 0; k < kh_end(g->h); ++k) {
-		if (!kh_exist(g->h, k)) continue;
-		uint64_t kv = kh_key(g->h, k);
+// void pg_msht_rearrange(pg_msht_t *h, long i)
+// {
+// 	// store entries to delete
+// 	pg_sht1_t *g = &h->h[i];
+// 	khint_t k;
+// 	for (k = 0; k < kh_end(g->h); ++k) {
+// 		if (!kh_exist(g->h, k)) continue;
+// 		uint64_t kv = kh_key(g->h, k);
 
-		uint64_t cb1 = f_val_cb1(kv);
-		uint64_t cb2 = f_val_cb2(kv);
+// 		uint64_t cb1 = f_val_cb1(kv);
+// 		uint64_t cb2 = f_val_cb2(kv);
 
-		kh_key(g->h, k) = (kv & ~S_VAL_MAX) | s_key_pack(cb2, cb1);
-		kh_val(g->h, k) = 0;
-	}
-}
+// 		kh_key(g->h, k) = (kv & ~S_VAL_MAX) | s_key_pack(cb2, cb1);
+// 		kh_val(g->h, k) = 0;
+// 	}
+// }
 
 
 void pg_msht_count_list(pg_msht_t *h, int n, const seq_t *a, seq_info_t *b)
@@ -437,14 +434,16 @@ pg_msht_t *pg_msht_repopulate(const char *kmer_file, pg_opt_t *opt)
 		// strip trailing newline/carriage return
 		while (len > 0 && (line[len-1] == '\n' || line[len-1] == '\r'))
 			line[--len] = '\0';
+
 		char a1, a2;
 		int bucket, absent;
 		uint64_t h_flanks, key;
 		uint64_t cb1, cb2;
 		khint_t k;
 
-		// parse the k-mer
-		int n = (int)strlen(line);
+		// isolate the first column (the SNP-mer) up to the next tab or end of line
+		char *tab = strchr(line, '\t');
+		int n = tab ? (int)(tab - line) : (int)len;
 
 		// check lentgh
 		if (n != opt->k + 4) {
@@ -498,16 +497,18 @@ pg_msht_t *pg_msht_repopulate(const char *kmer_file, pg_opt_t *opt)
 				free(line); free(left); free(right); fclose(fp);
 				return NULL;
 			}
-			x[0] = (x[0] << 2 | c) & mask;                  								// forward strand
-			x[1] = x[1] >> 2 | (uint64_t)(3 - c) << shift;  								// reverse strand
+			x[0] = (x[0] << 2 | c) & mask;                  							// forward strand
+			x[1] = x[1] >> 2 | (uint64_t)(3 - c) << shift;  							// reverse strand
 		}
 		
 		// re-do because user could load non-canonical SNP-mers
 		uint64_t y = x[0] < x[1] ? x[0] : x[1];
+		cb1 = x[0] < x[1] ?  cb1 : 3 - cb1;
+		cb2 = x[0] < x[1] ?  cb2 : 3 - cb2;
 		uint64_t y_rev = x[0] < x[1] ? x[1] : x[0];
-		uint64_t flanks = (y & ((1ULL<<(opt->k/2)*2)-1))          				// right flank from raw y
+		uint64_t flanks = (y & ((1ULL<<(opt->k/2)*2)-1))          			// right flank from raw y
 						| ((y >> ((opt->k/2+1)*2)) << ((opt->k/2)*2)); 		// left flank from raw y
-		uint64_t rev_flanks = (y_rev & ((1ULL<<(opt->k/2)*2)-1))          		// right flank from raw y
+		uint64_t rev_flanks = (y_rev & ((1ULL<<(opt->k/2)*2)-1))          	// right flank from raw y
 						| ((y_rev >> ((opt->k/2+1)*2)) << ((opt->k/2)*2)); 	// left flank from raw y
 
 		if (flanks == rev_flanks) {
@@ -615,25 +616,8 @@ void write_snpmer_tsv(const char *out_fn, pg_msht_t *h, const char *gnm_fn, int 
 	}
 
 	// get sample name
-	const char *bname = strrchr(gnm_fn, '/');
-	bname = bname ? bname + 1 : gnm_fn;
 	char sample_name[256];
-	strncpy(sample_name, bname, sizeof(sample_name) - 1);
-	sample_name[sizeof(sample_name) - 1] = '\0';
-	// strip .gz if present
-	size_t len = strlen(sample_name);
-	if (len > 3 && strcmp(sample_name + len - 3, ".gz") == 0)
-		sample_name[len - 3] = '\0';
-	// strip .fa, .fna, or .fasta
-	static const char *fa_exts[] = { ".fasta", ".fna", ".fa", NULL };
-	for (int i = 0; fa_exts[i]; i++) {
-		len = strlen(sample_name);
-		size_t elen = strlen(fa_exts[i]);
-		if (len > elen && strcmp(sample_name + len - elen, fa_exts[i]) == 0) {
-			sample_name[len - elen] = '\0';
-			break;
-		}
-	}
+    sample_name_from_path(gnm_fn, sample_name, sizeof sample_name);
 	if (w) {
 		fprintf(fp, "snpmer\t%s\tpositions\n", sample_name);
 	} else {

@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "bed.h"
+#include "clust.h"
 #include "kseq.h"
 #include "kthread.h"
 #include "khtab.h"
@@ -34,6 +35,7 @@ typedef struct {
 	int filt;				// whether the intermediate k-mer filtering has been done for the first time, do not insert new k-mers after it is set to 1
 	int cnt;				// whether it is first or second pass
 	int snp;				// whether you count SNP-mers or k-mers
+	int clust;				// whether you cluster read files
 	int n_done;				// processed genomes
 	int n_fns;
 } pldat_t;
@@ -47,8 +49,8 @@ typedef struct { 			// data structure for each step in kt_pipeline()
     int n, m, sum_len, nk;
 } stepdat_t;
 
-
-static inline int get_name_idx(cnames_t *nt, const char *name) {
+static inline int get_name_idx(cnames_t *nt, const char *name)
+{
     if (nt->n > 0 && strcmp(nt->names[nt->n - 1], name) == 0)
         return nt->n - 1;
 
@@ -124,7 +126,6 @@ static void count_seq_buf(buf_t *buf, pldat_t *p, int len, const char *seq, int 
 	}
 }
 
-
 static void worker_for(void *data, long i, int tid) // callback for kt_for()
 {
 	stepdat_t *s = (stepdat_t*)data;
@@ -150,7 +151,7 @@ static void clear_for(void *data, long i, int tid) // callback for kt_for()
 	if (p->cnt)
 		pg_msht_clear2(p->sh, i, p->opt->write_info);
 	else
-		pg_msht_clear1(p->sh, i, p->opt->filt_type, p->opt->mko);
+		pg_msht_clear1(p->sh, i, p->opt->filt_type);
 }
 
 static void filter_for(void *data, long i, int tid) // callback for kt_for()
@@ -210,7 +211,9 @@ static void *worker_pipeline(void *data, int step, void *in) // callback for kt_
 			// mask the sequence outside the BED entries if a BED file is provided
 			if (c) mask_fa(s->seq[s->n], l, c);
 
-			if (p->snp) {
+			if (p->clust) {
+				s->name_idx[s->n] = -1;
+			} else if (p->snp) {
 				s->name_idx[s->n] = p->cnt ? get_name_idx(&p->sh->cnames, p->ks->name.s) : -1;
 			} else {
 				s->name_idx[s->n] = get_name_idx(&p->kh->cnames, p->ks->name.s);
@@ -274,6 +277,7 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 	pl.filt = 0;
 	pl.cnt = 0; // first pass
 	pl.snp = opt->snp;
+	pl.clust = 0;
 	pl.sh->n_del_tot = 0;
 	const char *fa_fn;
 	const char *bed_fn;
@@ -351,21 +355,22 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 }
 
 
-static void rearrange_for(void *data, long i, int tid) // callback for kt_for()
-{
-	pg_msht_t *h = (pg_msht_t*)data;
-	pg_msht_rearrange(h, i);
-}
+// static void rearrange_for(void *data, long i, int tid) // callback for kt_for()
+// {
+// 	pg_msht_t *h = (pg_msht_t*)data;
+// 	pg_msht_rearrange(h, i);
+// }
 
 void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msht_t *h, const char *out_fn)
 {
 	pldat_t pl;
 	pl.n_done = 0;
-	pl.sh = h;
-	pl.kh = !h ? pg_mkht_init(opt->k, opt->pre, opt->write_info) : 0;
+	pl.sh = opt->snp ? h : 0;
+	pl.kh = opt->snp ? 0 : pg_mkht_init(opt->k, opt->pre, opt->write_info);
 	pl.opt = opt;
 	pl.filt = 0;
 	pl.cnt = 1;
+	pl.clust = 0;
 	pl.snp = opt->snp;
 
 	if (!bed_fn && opt->verbose)
@@ -409,4 +414,108 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 	} else {
 		pg_mkht_destroy(pl.kh, opt->write_info);
 	}
+}
+
+// void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *tree_structure_fn, const char *snpmer_order_fn, const char *out_fn)
+// {
+//     pldat_t pl;
+//     pl.n_done = 0;
+//     pl.sh = h;
+//     pl.kh = 0;
+//     pl.opt = opt;
+//     pl.filt = 0;
+//     pl.cnt = 1;
+//     pl.snp = 1;
+//     pl.bed_fn = 0;
+//     pl.b = 0;
+
+//     gzFile fp;
+//     fp = fa_fn == 0 || strcmp(fa_fn, "-") == 0 ? gzdopen(0, "r") : gzopen(fa_fn, "r");
+//     if (fp == 0) return;
+//     pl.ks = kseq_init(fp);
+//     pl.fa_fn = fa_fn;
+
+//     kt_pipeline(3, worker_pipeline, &pl, 3); // single genome pass, all chromosomes' SNPmers counted at once
+
+//     kseq_destroy(pl.ks);
+//     gzclose(fp);
+
+//     chr_forest_t *forest = load_clust_forest(pl.sh, tree_structure_fn, snpmer_order_fn);
+//     if (!forest) {
+// 		pg_msht_destroy(pl.sh, opt->write_info);
+// 		return;
+// 	}
+
+//     int n_chr;
+//     chr_result_t *results = classify_cenhaps(pl.sh, forest, &n_chr);
+
+//     FILE *out = out_fn && strcmp(out_fn, "-") != 0 ? fopen(out_fn, "w") : stdout;
+//     if (out) {
+//         fprintf(out, "chr\tcenhap\tmatches\n");
+//         for (int c = 0; c < n_chr; ++c) {
+//             fprintf(out, "%s\t%s\tnode%d_%c\t%d\n", results[c].chr, results[c].best.node_id, results[c].best.side, results[c].best.matches);
+//         }
+//         if (out != stdout) fclose(out);
+//     }
+
+//     free(results);
+//     destroy_forest(forest);
+//     pg_msht_destroy(pl.sh, opt->write_info);
+// }
+
+void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *tree_structure_fn, const char *snpmer_order_fn, const char *out_fn)
+{	
+	fprintf(stderr, "[M::%s] Counting SNP-mers in the input file'\n", __func__);
+    pldat_t pl;
+    pl.n_done = 0;
+    pl.sh = h;
+    pl.kh = 0;
+    pl.opt = opt;
+    pl.filt = 0;
+    pl.cnt = 1;
+    pl.snp = 1;
+	pl.clust = 1;
+    pl.bed_fn = 0;
+    pl.b = 0;
+
+    gzFile fp;
+    fp = fa_fn == 0 || strcmp(fa_fn, "-") == 0 ? gzdopen(0, "r") : gzopen(fa_fn, "r");
+    if (fp == 0) return;
+    pl.ks = kseq_init(fp);
+    pl.fa_fn = fa_fn;
+
+    kt_pipeline(3, worker_pipeline, &pl, 3); // single genome pass, all chromosomes' SNPmers counted at once
+
+    kseq_destroy(pl.ks);
+    gzclose(fp);
+
+    chr_forest_t *forest = load_clust_forest(pl.sh, tree_structure_fn, snpmer_order_fn);
+    if (!forest) {
+		pg_msht_destroy(pl.sh, opt->write_info);
+		return;
+	}
+
+	fprintf(stderr, "[M::%s] Genotyping input file'\n", __func__);
+    int n_chr;
+    chr_result_t *results = classify_cenhaps(pl.sh, forest, &n_chr);
+
+    FILE *out = out_fn && strcmp(out_fn, "-") != 0 ? fopen(out_fn, "w") : stdout;
+    if (out) {
+        fprintf(out, "chr\thap\tcenhap\tmatches\n");
+        for (int c = 0; c < n_chr; ++c) {
+            fprintf(out, "%s\t1\tnode%d_%c\t%d\n",
+                    results[c].chr, results[c].hap1.node_id, results[c].hap1.side, results[c].hap1.matches);
+            if (results[c].zygosity == CLUST_HETEROZYGOUS)
+                fprintf(out, "%s\t2\tnode%d_%c\t%d\n",
+                        results[c].chr, results[c].hap2.node_id, results[c].hap2.side, results[c].hap2.matches);
+            if (results[c].zygosity == CLUST_AMBIGUOUS)
+                fprintf(stderr, "[W::%s] chr %s: haplotype split was ambiguous (only one side resolved) — reporting hap1 only\n",
+                        __func__, results[c].chr);
+        }
+        if (out != stdout) fclose(out);
+    }
+
+    free(results);
+    destroy_forest(forest);
+    pg_msht_destroy(pl.sh, opt->write_info);
 }

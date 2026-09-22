@@ -26,14 +26,13 @@ int main_detect(int argc, char *argv[])
         { "msf", ko_required_argument, 302 },
 		{ "maf", ko_required_argument, 303 },
 		{ "snp", ko_no_argument, 304 },
-		{ "mko", ko_required_argument, 305 },
-        { "pre", ko_required_argument, 306 },
-        { "filt_type", ko_required_argument, 307 },
-        { "chunk_size", ko_required_argument, 308 },
-        { "threads", ko_required_argument, 309 },
-		{ "output", ko_required_argument, 310 },
-        { "verbose", ko_no_argument, 311 },
-		{ "bed_list", ko_required_argument, 312 },
+        { "pre", ko_required_argument, 305 },
+        { "filt_type", ko_required_argument, 306 },
+        { "chunk_size", ko_required_argument, 307 },
+        { "threads", ko_required_argument, 308 },
+		{ "output", ko_required_argument, 309 },
+        { "verbose", ko_no_argument, 310 },
+		{ "bed_list", ko_required_argument, 311 },
         { 0, 0, 0 }
     };
 
@@ -42,14 +41,13 @@ int main_detect(int argc, char *argv[])
         else if (c == 302) opt.msf = atof(o.arg);
 		else if (c == 303) opt.maf = atof(o.arg);
 		else if (c == 304) opt.snp = 1;
-		else if (c == 305) opt.mko = atoi(o.arg);
-        else if (c == 'p' || c == 306) opt.pre = atoi(o.arg);
-        else if (c == 'f' || c == 307) opt.filt_type = atoi(o.arg);
-        else if (c == 'K' || c == 308) opt.chunk_size = mm_parse_num(o.arg);
-        else if (c == 't' || c == 309) opt.n_threads = atoi(o.arg);
-		else if (c == 'o' || c == 310) fn_out = o.arg;
-        else if (c == 'v' || c == 311) opt.verbose = 1;
-		else if (c == 'b' || c == 312) bed_list_fn = o.arg;
+        else if (c == 'p' || c == 305) opt.pre = atoi(o.arg);
+        else if (c == 'f' || c == 306) opt.filt_type = atoi(o.arg);
+        else if (c == 'K' || c == 307) opt.chunk_size = mm_parse_num(o.arg);
+        else if (c == 't' || c == 308) opt.n_threads = atoi(o.arg);
+		else if (c == 'o' || c == 309) fn_out = o.arg;
+        else if (c == 'v' || c == 310) opt.verbose = 1;
+		else if (c == 'b' || c == 311) bed_list_fn = o.arg;
     }
 
 	if (argc - o.ind < 1) {
@@ -61,7 +59,6 @@ int main_detect(int argc, char *argv[])
 		fprintf(stderr, "  %-10s minimum allelic frequency of SNP-mers across input samples [%g]\n",
 				"--maf FLOAT", opt.maf);
 		fprintf(stderr, "  %-10s snp mode to count SNP-mers\n",         "--snp");
-		fprintf(stderr, "  %-10s maximum k-mer occurrences [%d]\n",         "--mko INT",  opt.mko);
 		fprintf(stderr, "  %-10s prefix length [%d]\n",         "-p/--pre INT",  opt.pre);
 		fprintf(stderr, "  %-10s filter type [%d]\n",           "-f/--filt_type INT",  opt.filt_type);
 		fprintf(stderr, "  %-10s number of worker threads [%d]\n",
@@ -111,13 +108,6 @@ int main_detect(int argc, char *argv[])
 		fprintf(stderr, "[E::%s] %d BED files given for %d FASTA files; -b/--bed_list must be given once per input or not at all\n", __func__, n_bed, n_fa);
 		free(bed_fns);
 		return 1;
-	}
-	if (opt.mko < 1) {
-		fprintf(stderr, "[E::%s] --mko is %d must be >= 1\n", __func__, opt.mko);
-		return 1;
-	}
-	if (opt.filt_type == 2) {
-		fprintf(stderr, "[W::%s] -f/--filt_type = 2: parameter --mko has no effect in this mode\n", __func__);
 	}
 	if (!opt.snp) {
 		fprintf(stderr, "[W::%s] --snp not activated: parameter --maf has no effect in this mode\n", __func__);
@@ -231,6 +221,87 @@ int main_count(int argc, char *argv[])
     return 0;
 }
 
+int main_clust(int argc, char *argv[])
+{   
+    pg_msht_t *h;
+	char *fn_out = 0;
+	char *bed_fn = 0;
+	char *kmer_file = 0;
+	char *tree_file = 0;
+	int c;
+	pg_opt_t opt;
+	ketopt_t o = KETOPT_INIT;
+	pg_opt_init(&opt);
+
+	static ko_longopt_t long_opts[] = {
+        { "k_length", ko_required_argument, 301 },
+        { "pre", ko_required_argument, 302 },
+        { "chunk_size", ko_required_argument, 303 },
+        { "threads", ko_required_argument, 304 },
+		{ "output", ko_required_argument, 305 },
+        { "verbose", ko_no_argument, 306 },
+		{ "kmers", ko_required_argument, 307 },
+		{ "tree", ko_required_argument, 308 },
+        { 0, 0, 0 }
+    };
+
+	while ((c = ketopt(&o, argc, argv, 1, "k:p:f:K:t:wo:vb:", long_opts)) >= 0) {
+        if      (c == 'k' || c == 301) opt.k = atoi(o.arg);
+        else if (c == 'p' || c == 302) opt.pre = atoi(o.arg);
+        else if (c == 'K' || c == 303) opt.chunk_size = mm_parse_num(o.arg);
+        else if (c == 't' || c == 304) opt.n_threads = atoi(o.arg);
+		else if (c == 'o' || c == 305) fn_out = o.arg;
+        else if (c == 'v' || c == 306) opt.verbose = 1;
+		else if (c == 307) kmer_file = o.arg;
+		else if (c == 308) tree_file = o.arg;
+    }
+
+	if (argc - o.ind != 1) {
+		fprintf(stderr, "Usage: pgkmc count [options] <in.fa>\n");
+		fprintf(stderr, "Options:\n");
+		fprintf(stderr, "  %-10s k-mer size [%d]\n",            "-k/--k_length INT",  opt.k);
+		fprintf(stderr, "  %-10s prefix length [%d]\n",         "-p/--pre INT",  opt.pre);
+		fprintf(stderr, "  %-10s number of worker threads [%d]\n",
+				"-t/--threads INT",  opt.n_threads);
+		fprintf(stderr, "  %-10s chunk size [%ld]\n",           "-K/--chunk_size INT", (long)opt.chunk_size);
+		fprintf(stderr, "  %-10s verbose output\n",             "-v/--verbose");
+		fprintf(stderr, "  %-10s output chromosome haplotypes in TSV format\n",
+				"-o/--output FILE");
+		fprintf(stderr, "  %-10s list of k-mers or SNP-mers as a text file\n",
+				"--kmers FILE");
+		fprintf(stderr, "  %-10s tree file with chromosome haplotypes relations (TSV format)\n",
+				"--tree FILE");
+		
+		return 1;
+	}
+
+	// warnings and errors
+	if (opt.k >= 32 || !(opt.k % 2)) {
+		fprintf(stderr, "[E::%s] -k/--k_length must be odd and <=31\n", __func__);
+		return 1;
+	}
+	if (!kmer_file) {
+		fprintf(stderr, "[E::%s] --kmers is required in pgkmc clust\n", __func__);
+		return 1;
+	}
+	if (!tree_file) {
+		fprintf(stderr, "[E::%s] --tree is required in pgkmc clust\n", __func__);
+		return 1;
+	}
+
+	// start
+	// first step: load specific SNP-mers
+	fprintf(stderr, "[M::%s] repopulating hash table from file '%s'\n", __func__, kmer_file);
+	h = pg_msht_repopulate(kmer_file, &opt);
+
+	// second step: cluster chromosome haplotypes
+	if (fn_out == NULL) fn_out = "-"; // redirect output to stdout
+	pg_clust(argv[o.ind], &opt, h, tree_file, kmer_file, fn_out);
+	fprintf(stderr, "[M::%s] Clustered chromosome haplotypes in %s\n", __func__, argv[o.ind]);
+	
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {   
 	int ret = 1;
@@ -241,11 +312,13 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Commands:\n");
 		fprintf(stderr, "  detect    detect specific k-mers in the passed fasta files\n");
 		fprintf(stderr, "  count    count specific k-mers in the passed fasta files\n");
+		fprintf(stderr, "  clust    cluster chromosomes haplotypes\n");
 		return 1;
 	}
 
     if (strcmp(argv[1], "detect") == 0) ret = main_detect(argc-1, argv+1);
 	else if (strcmp(argv[1], "count") == 0) ret = main_count(argc-1, argv+1);
+	else if (strcmp(argv[1], "clust") == 0) ret = main_clust(argc-1, argv+1);
 	else {
 		fprintf(stderr, "[E::main] unknown command '%s'\n", argv[1]);
 		return 1;

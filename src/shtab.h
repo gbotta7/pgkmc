@@ -8,7 +8,7 @@
 #include "parser.h"
 
 // define the first pass SNP-mer hash table value
-#define F_PGNM_COUNTER_BITS 26
+#define F_PGNM_COUNTER_BITS 28
 #define F_PGNM_COUNTER_MAX ((1U << F_PGNM_COUNTER_BITS/2) - 1)
 #define F_GNM_COUNTER_BITS (32 - F_PGNM_COUNTER_BITS)
 #define F_GNM_COUNTER_MAX ((1U << F_GNM_COUNTER_BITS/2) - 1)
@@ -69,7 +69,6 @@ typedef struct { // terminal options
     double msf;
     double maf;
     int snp;
-    int mko;
 	int32_t k;
     int32_t pre; // number of bits for partitioning.
     int write_info;
@@ -127,15 +126,16 @@ pg_msht_t *pg_msht_init(int k, int pre, int w);
 void pg_msht_destroy(pg_msht_t *h, int w);
 int64_t pg_msht_insert_list(pg_msht_t *h, int n, const seq_t *a, int f);
 void pg_msht_count_list(pg_msht_t *h, int n, const seq_t *a, seq_info_t *b);
-void pg_msht_clear1(pg_msht_t *h, long i, int f, int max_occ);
+void pg_msht_clear1(pg_msht_t *h, long i, int f);
 void pg_msht_clear2(pg_msht_t *h, long i, int w);
 int64_t pg_msht_filter(pg_msht_t *h, long i, int n_proc, int n_tot, int ff, pg_opt_t *opt);
 void pg_msht_tighten(pg_msht_t *h);
 pg_msht_t *pg_msht_repopulate(const char *kmer_file, pg_opt_t *opt);
-void pg_msht_rearrange(pg_msht_t *h, long i);
+// void pg_msht_rearrange(pg_msht_t *h, long i);
 
 pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns, const pg_opt_t *opt, const char *out_fn);
 void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msht_t *h, const char *out_fn);
+void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *tree_structure_fn, const char *snpmer_order_fn, const char *out_fn);
 
 void pg_dump_snpmers(const char *fn, pg_msht_t *h);
 void write_snpmer_tsv(const char *out_fn, pg_msht_t *h, const char *gnm_fn, int w, int w_mko);
