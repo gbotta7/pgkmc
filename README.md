@@ -5,6 +5,8 @@
 2. Counts
 3. Optionally, the positions of each k-mer or SNP-mer in that sample
 
+Additionaly, pgkmc can genotype centromeres from short or long reads FASTA/FASTQ files.
+
 Typical use cases can be:
 - **Pangenome SNP calling** — efficiently identify genome-wide SNPs across large collections of bacterial, fungal, or viral assemblies without whole-genome alignment and also in repetitive regions.
 - **Population genomics** — characterize allele frequencies and SNP distributions across hundreds to thousands of genomes.
@@ -27,6 +29,8 @@ When counting k-mers, pgkmc operates in one stage:
 
 The genome is streamed in chunks and its k-mers are extracted and inserted into a partitioned hash table, where they get counted.
 
+When genotyping centromeres, pgkmc reads a FASTA/FASTQ file and, based on some fixed and already detected SNP-mers, it moves down in a decision tree to genotype each chromosome. **Centromere genotyping (`pgkmc clust`)**
+
 ---
 
 
@@ -47,12 +51,14 @@ make
 ```bash
 pgkmc detect [options] <in1.fa> [in2.fa [...]]
 pgkmc count [options] <in.fa>
+pgkmc clust [options] <in.fa>
 ```
 
 To know more about options:
 ```bash
 pgkmc detect
 pgkmc count
+pgkmc clust
 ```
 
 To identify unique SNP-mers present in at least 90% of the genomes in the mtb152 dataset, and count them in a specific file, using 12 threads:
@@ -81,7 +87,11 @@ pgkmc count --snp -k31 -t12 --kmers hprc_cent_snpmers.txt \
         -b hprc_cent_anno/fileN.bed \ 
         -o hprc_cent_snpmers.tsv hprc_asm/fileN.fa;
 ```    
-
+To cluster centromeres in human samples from a CRAM file:
+```bash
+samtools fastq --reference ref.fa fileN.cram | \
+        pgkmc clust -k31 -t3 -K 0.1g -o gtype.tsv --kmers hprc_cent_snpmers.txt --tree hprc_cent_tree_structure.tsv -;
+```    
 
 #### SNP filtering (`-f/--filt_type`)
 
@@ -107,6 +117,7 @@ Use `-f 1` or `-f 0` if you want to retain non-unique SNP-mers.
 |------|---------|
 | `main.c` | Entry point and CLI parsing |
 | `bed.c/h` | BED files handling |
+| `clust.c/h` | Centromeres' genotyping |
 | `count.c` | K-mer and SNP-mer counting, SNP-mer discovery |
 | `khtab.c/h` | Partitioned k-mer hash table: insert, count, filter |
 | `shtab.c/h` | Partitioned SNP-mer hash table: insert, count, filter |
