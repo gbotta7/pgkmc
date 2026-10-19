@@ -180,7 +180,7 @@ static void *worker_pipeline(void *data, int step, void *in) // callback for kt_
 		while ((ret = kseq_read(p->ks)) >= 0) {
 			int32_t l = p->ks->seq.l;
 			const bed_ctg_t *c = 0;
-			int64_t nk_ctg, len_ctg;
+			int64_t nk_ctg;
 			if (l < p->opt->k) continue;
 			
 			// load bed file if passed
@@ -346,11 +346,10 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 
 	pg_msht_tighten(pl.sh);
 
-	if (out_fn) {
-		if (pl.snp)
-			pg_dump_snpmers(out_fn, pl.sh);
+	if (pl.snp) {
+		if (out_fn == NULL) out_fn = "-";
+		pg_dump_snpmers(out_fn, pl.sh);
 	}
-	
     return pl.sh;
 }
 
@@ -401,12 +400,12 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 		bed_destroy(pl.b); pl.b = 0;
 	}
 
-	if (out_fn) {
-		if (pl.snp) {
-			write_snpmer_tsv(out_fn, pl.sh, pl.fa_fn, pl.opt->write_info, pl.opt->write_mko);
-		} else {
-			write_kmer_tsv(out_fn, pl.kh, pl.fa_fn, pl.opt->write_info, pl.opt->write_mko);
-		}
+	if (pl.snp) {
+		if (out_fn == NULL) out_fn = "-";
+		write_snpmer_tsv(out_fn, pl.sh, pl.fa_fn, pl.opt->write_info, pl.opt->write_mko);
+	} else {
+		if (out_fn == NULL) out_fn = "-";
+		write_kmer_tsv(out_fn, pl.kh, pl.fa_fn, pl.opt->write_info, pl.opt->write_mko);
 	}
 	
 	if (pl.snp) {
@@ -416,56 +415,9 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 	}
 }
 
-// void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *tree_structure_fn, const char *snpmer_order_fn, const char *out_fn)
-// {
-//     pldat_t pl;
-//     pl.n_done = 0;
-//     pl.sh = h;
-//     pl.kh = 0;
-//     pl.opt = opt;
-//     pl.filt = 0;
-//     pl.cnt = 1;
-//     pl.snp = 1;
-//     pl.bed_fn = 0;
-//     pl.b = 0;
-
-//     gzFile fp;
-//     fp = fa_fn == 0 || strcmp(fa_fn, "-") == 0 ? gzdopen(0, "r") : gzopen(fa_fn, "r");
-//     if (fp == 0) return;
-//     pl.ks = kseq_init(fp);
-//     pl.fa_fn = fa_fn;
-
-//     kt_pipeline(3, worker_pipeline, &pl, 3); // single genome pass, all chromosomes' SNPmers counted at once
-
-//     kseq_destroy(pl.ks);
-//     gzclose(fp);
-
-//     chr_forest_t *forest = load_clust_forest(pl.sh, tree_structure_fn, snpmer_order_fn);
-//     if (!forest) {
-// 		pg_msht_destroy(pl.sh, opt->write_info);
-// 		return;
-// 	}
-
-//     int n_chr;
-//     chr_result_t *results = classify_cenhaps(pl.sh, forest, &n_chr);
-
-//     FILE *out = out_fn && strcmp(out_fn, "-") != 0 ? fopen(out_fn, "w") : stdout;
-//     if (out) {
-//         fprintf(out, "chr\tcenhap\tmatches\n");
-//         for (int c = 0; c < n_chr; ++c) {
-//             fprintf(out, "%s\t%s\tnode%d_%c\t%d\n", results[c].chr, results[c].best.node_id, results[c].best.side, results[c].best.matches);
-//         }
-//         if (out != stdout) fclose(out);
-//     }
-
-//     free(results);
-//     destroy_forest(forest);
-//     pg_msht_destroy(pl.sh, opt->write_info);
-// }
-
-void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *tree_structure_fn, const char *snpmer_order_fn, const char *out_fn)
-{	
-	fprintf(stderr, "[M::%s] Counting SNP-mers in the input file'\n", __func__);
+void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *matrix_list_fn, const char *labels_list_fn, const char *out_fn)
+{
+    fprintf(stderr, "[M::%s] Counting SNP-mers in the input file\n", __func__);
     pldat_t pl;
     pl.n_done = 0;
     pl.sh = h;
@@ -474,48 +426,53 @@ void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *
     pl.filt = 0;
     pl.cnt = 1;
     pl.snp = 1;
-	pl.clust = 1;
+    pl.clust = 1;
     pl.bed_fn = 0;
     pl.b = 0;
-
+ 
     gzFile fp;
     fp = fa_fn == 0 || strcmp(fa_fn, "-") == 0 ? gzdopen(0, "r") : gzopen(fa_fn, "r");
     if (fp == 0) return;
     pl.ks = kseq_init(fp);
     pl.fa_fn = fa_fn;
-
-    kt_pipeline(3, worker_pipeline, &pl, 3); // single genome pass, all chromosomes' SNPmers counted at once
-
+ 
+    kt_pipeline(3, worker_pipeline, &pl, 3); // single genome pass, all SNP-mers counted at once
+ 
     kseq_destroy(pl.ks);
     gzclose(fp);
-
-    chr_forest_t *forest = load_clust_forest(pl.sh, tree_structure_fn, snpmer_order_fn);
-    if (!forest) {
-		pg_msht_destroy(pl.sh, opt->write_info);
-		return;
-	}
-
-	fprintf(stderr, "[M::%s] Genotyping input file'\n", __func__);
-    int n_chr;
-    chr_result_t *results = classify_cenhaps(pl.sh, forest, &n_chr);
-
-    FILE *out = out_fn && strcmp(out_fn, "-") != 0 ? fopen(out_fn, "w") : stdout;
+ 
+    int n_mat = 0;
+    geno_mat_t **gms = load_matrices_from_list(pl.sh, matrix_list_fn, labels_list_fn, &n_mat);
+    if (!gms) {
+        pg_msht_destroy(pl.sh, opt->write_info);
+        return;
+    }
+ 
+    fprintf(stderr, "[M::%s] Genotyping %d chromosome(s)\n", __func__, n_mat);
+ 
+    if (out_fn == NULL) out_fn = "-";
+    FILE *out = strcmp(out_fn, "-") != 0 ? fopen(out_fn, "w") : stdout;
     if (out) {
-        fprintf(out, "chr\thap\tcenhap\tmatches\n");
-        for (int c = 0; c < n_chr; ++c) {
-            fprintf(out, "%s\t1\tnode%d_%c\t%d\n",
-                    results[c].chr, results[c].hap1.node_id, results[c].hap1.side, results[c].hap1.matches);
-            if (results[c].zygosity == CLUST_HETEROZYGOUS)
-                fprintf(out, "%s\t2\tnode%d_%c\t%d\n",
-                        results[c].chr, results[c].hap2.node_id, results[c].hap2.side, results[c].hap2.matches);
-            if (results[c].zygosity == CLUST_AMBIGUOUS)
-                fprintf(stderr, "[W::%s] chr %s: haplotype split was ambiguous (only one side resolved) — reporting hap1 only\n",
-                        __func__, results[c].chr);
+        fprintf(out, "chr\tgenotype\tnn_sample\n");
+        for (int i = 0; i < n_mat; ++i) {
+            geno_call_t call;
+            classify_genotype(pl.sh, gms[i], &call);
+            print_geno_call(out, gms[i], &call);
+            if (call.nn >= 0)
+                fprintf(stderr, "[M::%s] %s: %s nn=%s dist=%.4f margin=%.4f shared=%d observed=%d missing=%d used=%d\n",
+                        __func__, gms[i]->chr, gms[i]->geno_names[call.geno], gms[i]->samp_names[call.nn],
+                        call.dist_best,
+                        call.nn2 >= 0 ? call.dist_second - call.dist_best : INFINITY,
+                        call.n_shared, call.n_obs, call.n_missing, call.n_used);
+            else
+                fprintf(stderr, "[W::%s] %s: no call (observed=%d missing=%d)\n",
+                        __func__, gms[i]->chr, call.n_obs, call.n_missing);
         }
         if (out != stdout) fclose(out);
+    } else {
+        fprintf(stderr, "[E::%s] failed to open '%s' for writing\n", __func__, out_fn);
     }
-
-    free(results);
-    destroy_forest(forest);
+ 
+    destroy_geno_matrices(gms, n_mat);
     pg_msht_destroy(pl.sh, opt->write_info);
 }

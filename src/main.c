@@ -222,42 +222,44 @@ int main_count(int argc, char *argv[])
 }
 
 int main_clust(int argc, char *argv[])
-{   
-    pg_msht_t *h;
+{
+	pg_msht_t *h;
 	char *fn_out = 0;
-	char *bed_fn = 0;
 	char *kmer_file = 0;
-	char *tree_file = 0;
+	char *matrix_list = 0;
+	char *clusters_list = 0;
 	int c;
 	pg_opt_t opt;
 	ketopt_t o = KETOPT_INIT;
 	pg_opt_init(&opt);
-
+ 
 	static ko_longopt_t long_opts[] = {
-        { "k_length", ko_required_argument, 301 },
-        { "pre", ko_required_argument, 302 },
-        { "chunk_size", ko_required_argument, 303 },
-        { "threads", ko_required_argument, 304 },
-		{ "output", ko_required_argument, 305 },
-        { "verbose", ko_no_argument, 306 },
-		{ "kmers", ko_required_argument, 307 },
-		{ "tree", ko_required_argument, 308 },
-        { 0, 0, 0 }
-    };
-
-	while ((c = ketopt(&o, argc, argv, 1, "k:p:f:K:t:wo:vb:", long_opts)) >= 0) {
-        if      (c == 'k' || c == 301) opt.k = atoi(o.arg);
-        else if (c == 'p' || c == 302) opt.pre = atoi(o.arg);
-        else if (c == 'K' || c == 303) opt.chunk_size = mm_parse_num(o.arg);
-        else if (c == 't' || c == 304) opt.n_threads = atoi(o.arg);
+		{ "k_length",   ko_required_argument, 301 },
+		{ "pre",        ko_required_argument, 302 },
+		{ "chunk_size", ko_required_argument, 303 },
+		{ "threads",    ko_required_argument, 304 },
+		{ "output",     ko_required_argument, 305 },
+		{ "verbose",    ko_no_argument,       306 },
+		{ "kmers",      ko_required_argument, 307 },
+		{ "matrices",   ko_required_argument, 308 },
+		{ "clusters",   ko_required_argument, 309 },
+		{ 0, 0, 0 }
+	};
+ 
+	while ((c = ketopt(&o, argc, argv, 1, "k:p:K:t:o:v", long_opts)) >= 0) {
+		if      (c == 'k' || c == 301) opt.k = atoi(o.arg);
+		else if (c == 'p' || c == 302) opt.pre = atoi(o.arg);
+		else if (c == 'K' || c == 303) opt.chunk_size = mm_parse_num(o.arg);
+		else if (c == 't' || c == 304) opt.n_threads = atoi(o.arg);
 		else if (c == 'o' || c == 305) fn_out = o.arg;
-        else if (c == 'v' || c == 306) opt.verbose = 1;
+		else if (c == 'v' || c == 306) opt.verbose = 1;
 		else if (c == 307) kmer_file = o.arg;
-		else if (c == 308) tree_file = o.arg;
-    }
-
+		else if (c == 308) matrix_list = o.arg;
+		else if (c == 309) clusters_list = o.arg;
+	}
+ 
 	if (argc - o.ind != 1) {
-		fprintf(stderr, "Usage: pgkmc count [options] <in.fa>\n");
+		fprintf(stderr, "Usage: pgkmc clust [options] <in.fa>\n");
 		fprintf(stderr, "Options:\n");
 		fprintf(stderr, "  %-10s k-mer size [%d]\n",            "-k/--k_length INT",  opt.k);
 		fprintf(stderr, "  %-10s prefix length [%d]\n",         "-p/--pre INT",  opt.pre);
@@ -265,16 +267,17 @@ int main_clust(int argc, char *argv[])
 				"-t/--threads INT",  opt.n_threads);
 		fprintf(stderr, "  %-10s chunk size [%ld]\n",           "-K/--chunk_size INT", (long)opt.chunk_size);
 		fprintf(stderr, "  %-10s verbose output\n",             "-v/--verbose");
-		fprintf(stderr, "  %-10s output chromosome haplotypes in TSV format\n",
+		fprintf(stderr, "  %-10s output chromosome genotypes in TSV format [stdout]\n",
 				"-o/--output FILE");
-		fprintf(stderr, "  %-10s list of k-mers or SNP-mers as a text file\n",
+		fprintf(stderr, "  %-10s list of SNP-mers to count (must cover all SNP-mers in the matrices)\n",
 				"--kmers FILE");
-		fprintf(stderr, "  %-10s tree file with chromosome haplotypes relations (TSV format)\n",
-				"--tree FILE");
-		
+		fprintf(stderr, "  %-10s text file with one reference sample matrix path per line (one chromosome per matrix)\n",
+				"--matrices FILE");
+		fprintf(stderr, "  %-10s text file with one genotype-labels path per line (sample<TAB>genotype), same order as --matrices\n",
+				"--clusters FILE");
 		return 1;
 	}
-
+ 
 	// warnings and errors
 	if (opt.k >= 32 || !(opt.k % 2)) {
 		fprintf(stderr, "[E::%s] -k/--k_length must be odd and <=31\n", __func__);
@@ -284,22 +287,29 @@ int main_clust(int argc, char *argv[])
 		fprintf(stderr, "[E::%s] --kmers is required in pgkmc clust\n", __func__);
 		return 1;
 	}
-	if (!tree_file) {
-		fprintf(stderr, "[E::%s] --tree is required in pgkmc clust\n", __func__);
+	if (!matrix_list) {
+		fprintf(stderr, "[E::%s] --matrices is required in pgkmc clust\n", __func__);
 		return 1;
 	}
-
-	// start
+	if (!clusters_list) {
+		fprintf(stderr, "[E::%s] --clusters is required in pgkmc clust\n", __func__);
+		return 1;
+	}
+ 
 	// first step: load specific SNP-mers
 	fprintf(stderr, "[M::%s] repopulating hash table from file '%s'\n", __func__, kmer_file);
 	h = pg_msht_repopulate(kmer_file, &opt);
-
-	// second step: cluster chromosome haplotypes
+	if (!h) {
+		fprintf(stderr, "[E::%s] failed to load '%s'\n", __func__, kmer_file);
+		return 1;
+	}
+ 
+	// second step: genotype every chromosome against its matrix
 	if (fn_out == NULL) fn_out = "-"; // redirect output to stdout
-	pg_clust(argv[o.ind], &opt, h, tree_file, kmer_file, fn_out);
-	fprintf(stderr, "[M::%s] Clustered chromosome haplotypes in %s\n", __func__, argv[o.ind]);
-	
-    return 0;
+	pg_clust(argv[o.ind], &opt, h, matrix_list, clusters_list, fn_out);
+	fprintf(stderr, "[M::%s] Genotyped %s\n", __func__, argv[o.ind]);
+ 
+	return 0;
 }
 
 int main(int argc, char *argv[])

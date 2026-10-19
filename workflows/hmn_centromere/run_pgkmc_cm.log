@@ -1,0 +1,374 @@
+Unlocked working directory.
+Assuming unrestricted shared filesystem usage.
+
+SNAKEMAKE
+=========
+  Date: 2026-10-19 13:51:46
+  Workflow ID: 219f58a4-b0d2-4eb8-aa9f-446b3ad64dd4
+  Platform: Linux-3.10.0-693.2.2.el7.x86_64-x86_64-with-glibc2.17
+  Host: node07
+  User: gianfranco
+  Snakemake version: 9.23.0
+  Python version: 3.13.14 | packaged by conda-forge | (main, Jun 12 2026, 09:50:25) [GCC 14.3.0]
+  Command: /homes2/gianfranco/miniforge3/envs/snakemake/bin/snakemake --use-conda --cores 64 --rerun-incomplete
+  Snakefile: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/Snakefile
+  Base directory: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere
+  Run directory: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere
+  Working directory: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere
+  Config file(s): ['/hlilab/gianfranco/pgkmc/workflows/hmn_centromere/config/config.yaml']
+  Config MD5: 9d1308e0a85ab6bbc8dcf51573148d38
+
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however important for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Using shell: /usr/bin/bash
+Provided cores: 64
+Rules claiming more threads will be scaled down.
+Job stats:
+job                        count
+-----------------------  -------
+evaluate_tree_stability       22
+all                            1
+total                         23
+
+Select jobs to execute...
+Execute 22 jobs...
+
+[Mon Oct 19 13:52:16 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr16/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr16/bootstrap_tree.png
+    log: logs/snps/centromeres/chr16/evaluate_tree_stability.log
+    jobid: 16
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr16/bootstrap_tree.png
+    wildcards: chr=chr16
+    resources: tmpdir=/tmp
+[Mon Oct 19 13:52:16 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr9/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr9/bootstrap_tree.png
+    log: logs/snps/centromeres/chr9/evaluate_tree_stability.log
+    jobid: 9
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr9/bootstrap_tree.png
+    wildcards: chr=chr9
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:16 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr17/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr17/bootstrap_tree.png
+    log: logs/snps/centromeres/chr17/evaluate_tree_stability.log
+    jobid: 17
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr17/bootstrap_tree.png
+    wildcards: chr=chr17
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:16 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr2/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr2/bootstrap_tree.png
+    log: logs/snps/centromeres/chr2/evaluate_tree_stability.log
+    jobid: 2
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr2/bootstrap_tree.png
+    wildcards: chr=chr2
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:16 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr10/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr10/bootstrap_tree.png
+    log: logs/snps/centromeres/chr10/evaluate_tree_stability.log
+    jobid: 10
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr10/bootstrap_tree.png
+    wildcards: chr=chr10
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:16 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr18/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr18/bootstrap_tree.png
+    log: logs/snps/centromeres/chr18/evaluate_tree_stability.log
+    jobid: 18
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr18/bootstrap_tree.png
+    wildcards: chr=chr18
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:16 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr3/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr3/bootstrap_tree.png
+    log: logs/snps/centromeres/chr3/evaluate_tree_stability.log
+    jobid: 3
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr3/bootstrap_tree.png
+    wildcards: chr=chr3
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:16 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr11/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr11/bootstrap_tree.png
+    log: logs/snps/centromeres/chr11/evaluate_tree_stability.log
+    jobid: 11
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr11/bootstrap_tree.png
+    wildcards: chr=chr11
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr19/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr19/bootstrap_tree.png
+    log: logs/snps/centromeres/chr19/evaluate_tree_stability.log
+    jobid: 19
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr19/bootstrap_tree.png
+    wildcards: chr=chr19
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr4/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr4/bootstrap_tree.png
+    log: logs/snps/centromeres/chr4/evaluate_tree_stability.log
+    jobid: 4
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr4/bootstrap_tree.png
+    wildcards: chr=chr4
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr12/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr12/bootstrap_tree.png
+    log: logs/snps/centromeres/chr12/evaluate_tree_stability.log
+    jobid: 12
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr12/bootstrap_tree.png
+    wildcards: chr=chr12
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr20/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr20/bootstrap_tree.png
+    log: logs/snps/centromeres/chr20/evaluate_tree_stability.log
+    jobid: 20
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr20/bootstrap_tree.png
+    wildcards: chr=chr20
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr5/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr5/bootstrap_tree.png
+    log: logs/snps/centromeres/chr5/evaluate_tree_stability.log
+    jobid: 5
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr5/bootstrap_tree.png
+    wildcards: chr=chr5
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr1/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr1/bootstrap_tree.png
+    log: logs/snps/centromeres/chr1/evaluate_tree_stability.log
+    jobid: 1
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr1/bootstrap_tree.png
+    wildcards: chr=chr1
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr13/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr13/bootstrap_tree.png
+    log: logs/snps/centromeres/chr13/evaluate_tree_stability.log
+    jobid: 13
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr13/bootstrap_tree.png
+    wildcards: chr=chr13
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr21/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr21/bootstrap_tree.png
+    log: logs/snps/centromeres/chr21/evaluate_tree_stability.log
+    jobid: 21
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr21/bootstrap_tree.png
+    wildcards: chr=chr21
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr6/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr6/bootstrap_tree.png
+    log: logs/snps/centromeres/chr6/evaluate_tree_stability.log
+    jobid: 6
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr6/bootstrap_tree.png
+    wildcards: chr=chr6
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr14/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr14/bootstrap_tree.png
+    log: logs/snps/centromeres/chr14/evaluate_tree_stability.log
+    jobid: 14
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr14/bootstrap_tree.png
+    wildcards: chr=chr14
+    resources: tmpdir=/tmp
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr22/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr22/bootstrap_tree.png
+    log: logs/snps/centromeres/chr22/evaluate_tree_stability.log
+    jobid: 22
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr22/bootstrap_tree.png
+    wildcards: chr=chr22
+    resources: tmpdir=/tmp
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr7/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr7/bootstrap_tree.png
+    log: logs/snps/centromeres/chr7/evaluate_tree_stability.log
+    jobid: 7
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr7/bootstrap_tree.png
+    wildcards: chr=chr7
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr15/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr15/bootstrap_tree.png
+    log: logs/snps/centromeres/chr15/evaluate_tree_stability.log
+    jobid: 15
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr15/bootstrap_tree.png
+    wildcards: chr=chr15
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+
+[Mon Oct 19 13:52:17 2026]
+localrule evaluate_tree_stability:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/results/snps/centromeres/chr8/unfilt.centromeric.snpmers.tsv
+    output: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr8/bootstrap_tree.png
+    log: logs/snps/centromeres/chr8/evaluate_tree_stability.log
+    jobid: 8
+    reason: Missing output files: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr8/bootstrap_tree.png
+    wildcards: chr=chr8
+    resources: tmpdir=/tmp
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+Activating conda environment: .snakemake/conda/6c14042f9a37931a0d984605484552aa_
+[Mon Oct 19 13:56:44 2026]
+Finished jobid: 21 (Rule: evaluate_tree_stability)
+1 of 23 steps (4%) done
+[Mon Oct 19 13:56:44 2026]
+Finished jobid: 16 (Rule: evaluate_tree_stability)
+2 of 23 steps (9%) done
+[Mon Oct 19 13:56:45 2026]
+Finished jobid: 15 (Rule: evaluate_tree_stability)
+3 of 23 steps (13%) done
+[Mon Oct 19 13:56:55 2026]
+Finished jobid: 3 (Rule: evaluate_tree_stability)
+4 of 23 steps (17%) done
+[Mon Oct 19 13:56:57 2026]
+Finished jobid: 13 (Rule: evaluate_tree_stability)
+5 of 23 steps (22%) done
+[Mon Oct 19 13:57:08 2026]
+Finished jobid: 6 (Rule: evaluate_tree_stability)
+6 of 23 steps (26%) done
+[Mon Oct 19 13:57:18 2026]
+Finished jobid: 4 (Rule: evaluate_tree_stability)
+7 of 23 steps (30%) done
+[Mon Oct 19 13:57:24 2026]
+Finished jobid: 20 (Rule: evaluate_tree_stability)
+8 of 23 steps (35%) done
+[Mon Oct 19 13:57:26 2026]
+Finished jobid: 8 (Rule: evaluate_tree_stability)
+9 of 23 steps (39%) done
+[Mon Oct 19 13:57:29 2026]
+Finished jobid: 17 (Rule: evaluate_tree_stability)
+10 of 23 steps (43%) done
+[Mon Oct 19 13:57:30 2026]
+Finished jobid: 14 (Rule: evaluate_tree_stability)
+11 of 23 steps (48%) done
+[Mon Oct 19 13:57:34 2026]
+Finished jobid: 2 (Rule: evaluate_tree_stability)
+12 of 23 steps (52%) done
+[Mon Oct 19 13:57:45 2026]
+Finished jobid: 7 (Rule: evaluate_tree_stability)
+13 of 23 steps (57%) done
+[Mon Oct 19 13:57:52 2026]
+Finished jobid: 18 (Rule: evaluate_tree_stability)
+14 of 23 steps (61%) done
+[Mon Oct 19 13:57:59 2026]
+Finished jobid: 5 (Rule: evaluate_tree_stability)
+15 of 23 steps (65%) done
+[Mon Oct 19 13:58:02 2026]
+Finished jobid: 9 (Rule: evaluate_tree_stability)
+16 of 23 steps (70%) done
+[Mon Oct 19 13:58:02 2026]
+Finished jobid: 10 (Rule: evaluate_tree_stability)
+17 of 23 steps (74%) done
+[Mon Oct 19 13:58:04 2026]
+Finished jobid: 12 (Rule: evaluate_tree_stability)
+18 of 23 steps (78%) done
+[Mon Oct 19 13:58:20 2026]
+Finished jobid: 22 (Rule: evaluate_tree_stability)
+19 of 23 steps (83%) done
+[Mon Oct 19 13:58:31 2026]
+Finished jobid: 11 (Rule: evaluate_tree_stability)
+20 of 23 steps (87%) done
+[Mon Oct 19 13:58:48 2026]
+Finished jobid: 1 (Rule: evaluate_tree_stability)
+21 of 23 steps (91%) done
+[Mon Oct 19 13:59:21 2026]
+Finished jobid: 19 (Rule: evaluate_tree_stability)
+22 of 23 steps (96%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Oct 19 13:59:21 2026]
+localrule all:
+    input: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr1/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr2/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr3/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr4/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr5/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr6/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr7/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr8/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr9/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr10/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr11/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr12/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr13/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr14/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr15/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr16/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr17/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr18/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr19/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr20/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr21/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr22/bootstrap_tree.png
+    jobid: 0
+    reason: Input files updated by another job: /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr10/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr12/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr18/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr8/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr6/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr7/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr4/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr2/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr13/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr1/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr20/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr19/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr16/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr22/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr17/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr5/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr11/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr15/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr14/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr21/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr3/bootstrap_tree.png, /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/plots/tree_stability/chr9/bootstrap_tree.png
+    resources: tmpdir=/tmp
+[Mon Oct 19 13:59:21 2026]
+Finished jobid: 0 (Rule: all)
+23 of 23 steps (100%) done
+Complete log(s): /hlilab/gianfranco/pgkmc/workflows/hmn_centromere/.snakemake/log/2026-10-19T135144.052842.snakemake.log

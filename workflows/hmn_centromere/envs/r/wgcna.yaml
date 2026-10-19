@@ -1,0 +1,10 @@
+name: wgcna
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base>=4.2
+  - r-wgcna
+  - r-data.table
+  - r-matrix
+  - r-devtools
