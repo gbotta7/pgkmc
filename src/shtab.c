@@ -67,22 +67,28 @@ void pg_msht_destroy(pg_msht_t *h, int w)
 	free(h->h); free(h->ih); free(h);
 }
 
-int64_t pg_msht_filter(pg_msht_t *h, long i, int n_proc, int n_tot, int ff, pg_opt_t *opt)
+int64_t pg_msht_filter(pg_msht_t *h, long i, int n_proc, int n_tot, int ff, const pg_opt_t *opt)
 {	
 	int64_t n_del = 0;
+	// , non_snp = 0, ma_snp = 0;
 	int cond = 0, cond_msf = 0, cond_maf = 0, cond_snp = 0;
 
 	pg_sht1_t *g = &h->h[i];
 	uint64_t *del_part = malloc(kh_size(g->h) * sizeof(uint64_t)), kv;
 	khint_t k;
 	uint32_t v;
+	
 	for (k = 0; k < kh_end(g->h); ++k) {
 		if (!kh_exist(g->h, k)) continue;
 		kv = kh_key(g->h, k);
 		v = kh_val(g->h, k);
 		cond_msf = (double)(n_proc - (f_val_pgnm_count1(v) + f_val_pgnm_count2(v))) / n_tot > (1.0 - opt->msf + 1e-9);		// check that one of the two alleles is present in at least opt->msf*N files
 		if (ff) cond_maf = (f_val_pgnm_count1(v) / (double)(f_val_pgnm_count1(v) + f_val_pgnm_count2(v))) < opt->maf || (f_val_pgnm_count2(v) / (double)(f_val_pgnm_count1(v) + f_val_pgnm_count2(v))) < opt->maf;		// check minimum allelic frequency > opt->maf (only in ff)
-		if (ff) cond_snp = !f_val_snp1(kv) || f_val_snp2(kv);				// remove multi-allelic and non SNP-mers
+		if (ff) {	// remove multi-allelic and non SNP-mers
+			// if (!f_val_snp1(kv)) non_snp++;
+			// if (f_val_snp2(kv)) ma_snp++;
+			cond_snp = !f_val_snp1(kv) || f_val_snp2(kv);
+		}
 		cond = cond_msf || cond_maf || cond_snp || f_val_filt(kv);			// just one of the filt bits needs to be on in SNP-mers
 		if (cond) {
 			del_part[n_del++] = kh_key(g->h, k);
@@ -97,7 +103,11 @@ int64_t pg_msht_filter(pg_msht_t *h, long i, int n_proc, int n_tot, int ff, pg_o
 		}
 	}
 	
-	// fprintf(stderr, "n_del = %lld\n", n_del);
+	// if (ff && opt->verbose) {
+	// 	fprintf(stderr, "[M::%s] %lld multi-allelic SNP-mers deleted from hash table during final filter'\n", __func__, ma_snp);
+	// 	fprintf(stderr, "[M::%s] %lld non SNP-mers deleted from hash table during final filter'\n", __func__, non_snp);
+	// }
+
 	free(del_part);
 
 	return n_del;
@@ -609,7 +619,7 @@ void pg_dump_snpmers(const char *fn, pg_msht_t *h)
 
 void write_snpmer_tsv(const char *out_fn, pg_msht_t *h, const char *gnm_fn, int w, int w_mko)
 {
-	FILE *fp = fopen(out_fn, "w");
+	FILE *fp = (out_fn && strcmp(out_fn, "-") == 0) ? stdout : fopen(out_fn, "w");
 	if (!fp) {
 		fprintf(stderr, "[M::%s] Failed to open '%s'\n", __func__, out_fn);
 		return;
@@ -701,7 +711,7 @@ void write_snpmer_tsv(const char *out_fn, pg_msht_t *h, const char *gnm_fn, int 
 		}
 	}
 
-	fclose(fp);
+	if (fp != stdout) fclose(fp);
 }
 
 // void merge_tsvs(const char *out_fn, const char *tmpdir, const char **fa_fns, int n_fns, int n_rows)

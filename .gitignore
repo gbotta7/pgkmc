@@ -11,6 +11,7 @@ workflows/**/results/
 workflows/**/results/**
 workflows/**/plots/
 workflows/**/plots/**
+workflows/**/*.log
 
 # Ignore hidden files/directories inside workflow
 workflows/**/.*

@@ -11,6 +11,7 @@ from scipy.spatial.distance import pdist, squareform
 from sklearn.metrics import silhouette_score
 from sklearn.metrics.pairwise import cosine_distances
 
+
 def _categorical_track(labels, cmap_name, color_overrides=None, nan_color="0.75"):
     """Map a 1-D array of labels to an RGBA column plus legend material."""
     labels = np.asarray(labels, dtype=object)
@@ -25,6 +26,11 @@ def _categorical_track(labels, cmap_name, color_overrides=None, nan_color="0.75"
             mpl.colors.to_rgba(color_overrides.get(lev, base(i)))
             for i, lev in enumerate(levels)
         ])
+    elif cmap_name == "tab20" and n > 20:   # tab20 has only 20 colours; extend to 60 so none repeat
+        palette = mpl.colors.ListedColormap(
+            list(plt.get_cmap("tab20").colors) + list(plt.get_cmap("tab20b").colors)
+            + list(plt.get_cmap("tab20c").colors))
+        colors = palette(np.arange(n))
     else:
         colors = plt.get_cmap(cmap_name, max(n, 1))(np.arange(n))
 
@@ -42,6 +48,7 @@ def _categorical_track(labels, cmap_name, color_overrides=None, nan_color="0.75"
         legend_colors.append(np.array(nan_rgba))
 
     return rgba[:, None, :], legend_levels, np.array(legend_colors)
+
 
 def _cluster_link_colors(Z, leaf_clusters, cluster_colors, default="0.35"):
     """link_color_func: colour a link by its cluster, grey where clusters merge."""
@@ -177,8 +184,13 @@ def kc_heatmap_clustered(comp,
                          cbar_fontsize=10,
                          cbar_width=0.018,
                          cbar_gap=0.022,
-                         legend_pad=None,
+                         legend_pad=0.9,
+                         legend_ncol=20,
                          save_path=None):
+    """Clustered heatmap. One legend per annotation track, each on its own row below
+    the heatmap, stacked in the order of `annotate` (first = top). legend_ncol = max
+    columns per row; longer legends wrap onto more rows. The right-hand column only
+    holds the two colour scales, placed clear of the "Haplotypes" title."""
     n_variants, n_samples = comp.shape
 
     # ---- cluster variants ---------------------------------------------------
@@ -240,9 +252,7 @@ def kc_heatmap_clustered(comp,
         base = plt.get_cmap(cluster_cmap, max(len(levels), 1))
         cluster_colors = {lev: base(i) for i, lev in enumerate(levels)}
 
-    # ---- figure -------------------------------------------------------------xw
-    if legend_pad is None:
-        legend_pad = max(1.6, 0.7 * n_tracks)
+    # ---- figure -------------------------------------------------------------
     width_ratios = [1] + [0.06] * n_tracks + [3, legend_pad]
     fig = plt.figure(figsize=figsize)
     gs = fig.add_gridspec(1, len(width_ratios), width_ratios=width_ratios,
@@ -256,10 +266,9 @@ def kc_heatmap_clustered(comp,
     dendrogram(Z_cols, ax=ax_tree, no_labels=True, color_threshold=0,
                orientation="left", above_threshold_color="black",
                link_color_func=link_cf)
-    # ax_tree.set_xlabel("Distance", fontsize=14)
     ax_tree.set_xticks([])
     ax_tree.set_yticks([])
-    ax_tree.set_frame_on(False) # remove the borders of tree plot
+    ax_tree.set_frame_on(False)  # remove the borders of tree plot
     # scipy stacks leaves bottom-up; imshow draws row 0 at the top, so flip
     ax_tree.set_ylim(10 * n_samples, 0)
 
@@ -281,45 +290,30 @@ def kc_heatmap_clustered(comp,
     ax_hm.set_xticks([])
     ax_hm.set_yticks([])
 
-    # ---- legend block -------------------------------------------------------xw
-    margin = gs[0, -1].get_position(fig)
-    x_center = 0.5 * (margin.x0 + margin.x1)
+    # ---- legends: one row each, below the heatmap, first track on top ------
+    fig.canvas.draw()  # needed before the label extent can be measured
+    inv = fig.transFigure.inverted()
+    x_left = ax_hm.get_position().x0
+    y = ax_hm.xaxis.label.get_window_extent().transformed(inv).y0 - 0.015
 
-    legs = []
     for title, _, levels, colors in tracks:
-        if len(levels) > 20:
-            continue
         handles = [mpl.patches.Patch(color=colors[i], label=str(lev))
                    for i, lev in enumerate(levels)]
         leg = fig.legend(
-            handles=handles, title=title, loc="lower left",
-            bbox_to_anchor=(0.0, 0.0), ncol=1, frameon=False,
-            fontsize=8, title_fontsize=9, labelspacing=0.3,
+            handles=handles, title=title, loc="upper left",
+            bbox_to_anchor=(x_left, y), ncol=min(legend_ncol, len(levels)),
+            frameon=False, fontsize=8, title_fontsize=9, labelspacing=0.3,
             handlelength=1.0, handleheight=1.0, handletextpad=0.4,
-            borderaxespad=0.0, borderpad=0.0,
+            columnspacing=0.8, borderaxespad=0.0, borderpad=0.0,
         )
         leg._legend_box.align = "left"
-        fig.add_artist(leg)
-        legs.append(leg)
+        fig.canvas.draw()
+        y -= leg.get_window_extent().transformed(inv).height + 0.015
 
-    fig.canvas.draw()  # needed before legend extents can be measured
-    inv = fig.transFigure.inverted()
-    boxes = [leg.get_window_extent().transformed(inv) for leg in legs]
-    leg_w = [b.width for b in boxes]
-    leg_h = max([b.height for b in boxes], default=0.0)
-
-    gap_x = 0.012          # between legend columns
-    gap_y = 0.035          # between the legends and the colour scales
-    total_w = sum(leg_w) + gap_x * max(len(leg_w) - 1, 0)
-
-    block_h = cbar_frac + (leg_h + gap_y if legs else 0.0)
-    y_bottom = 0.5 - block_h / 2
-
-    x = x_center - total_w / 2
-    for leg, w in zip(legs, leg_w):
-        leg.set_bbox_to_anchor((x, y_bottom + cbar_frac + gap_y),
-                               transform=fig.transFigure)
-        x += w + gap_x
+    # ---- colour scales, centred in the right-hand column --------------------
+    margin = gs[0, -1].get_position(fig)
+    x_center = 0.5 * (margin.x0 + margin.x1)
+    y_bottom = 0.5 - cbar_frac / 2
 
     # the composition colour scale + dual blue/red depth swatch, side by side
     depth_width = 2 * cbar_width       # blue + red columns share one axes
@@ -362,9 +356,21 @@ def kc_heatmap_clustered(comp,
     ax_alpha.set_ylabel("Log1p(N_copies)", fontsize=cbar_fontsize)
     ax_alpha.yaxis.set_label_position("right")
 
+    # ---- keep the colour scales clear of the "Haplotypes" y-axis title ------
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    ylab_x1 = ax_hm.yaxis.label.get_window_extent(renderer).transformed(inv).x1
+    cbar_x0 = ax_cbar.get_tightbbox(renderer).transformed(inv).x0  # incl. tick labels + title
+    shift = ylab_x1 + 0.01 - cbar_x0
+    if shift > 0:
+        for a in (ax_cbar, ax_alpha):
+            p = a.get_position()
+            a.set_position([p.x0 + shift, p.y0, p.width, p.height])
+
     if save_path is not None:
         fig.savefig(save_path, dpi=300, bbox_inches="tight")
     # plt.show()
+
 
 def nan_pdist(X, metric="euclidean"):
     X = np.asarray(X, dtype=float)
