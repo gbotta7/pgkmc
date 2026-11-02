@@ -38,6 +38,8 @@ typedef struct {
 	int clust;				// whether you cluster read files
 	int n_done;				// processed genomes
 	int n_fns;
+	const uint64_t *bm;		// bitmap of SNP-mers to quickly check without buffering in step 2
+	uint64_t bm_mask;
 } pldat_t;
 
 typedef struct { 			// data structure for each step in kt_pipeline()
@@ -117,7 +119,9 @@ static void count_seq_buf(buf_t *buf, pldat_t *p, int len, const char *seq, int 
 				}
 				
 				if (p->snp) {
-					insert_buf(buf, p, pg_hash64(flanks, hash_mask), center, (uint32_t)i-p->opt->k/2, cname_idx); // i-k/2 is the 0-based position of center
+					uint64_t h_flanks = pg_hash64(flanks, hash_mask);
+					if (p->bm && !((p->bm[(h_flanks & p->bm_mask) >> 6] >> (h_flanks & 63)) & 1)) continue; // not in the hash-table if not in the bitmap
+					insert_buf(buf, p, h_flanks, center, (uint32_t)i-p->opt->k/2, cname_idx); // i-k/2 is the 0-based position of center
 				} else {
 					insert_buf(buf, p, pg_hash64(y, mask), 0, (uint32_t)i-p->opt->k/2, cname_idx); // i-k/2 is the 0-based position of center
 				}
@@ -168,6 +172,13 @@ static void filter_for(void *data, long i, int tid) // callback for kt_for()
 	p->filt = 1;
 }
 
+static void mask_lowq(char *seq, const char *qual, int32_t l, int min_q)
+{
+    const uint8_t thres = 33 + min_q;           // Phred+33
+    for (int32_t i = 0; i < l; ++i)
+        if ((uint8_t)qual[i] < thres) seq[i] = 'N';
+}
+
 static void *worker_pipeline(void *data, int step, void *in) // callback for kt_pipeline()
 {
 	pldat_t *p = (pldat_t*)data;	
@@ -207,6 +218,10 @@ static void *worker_pipeline(void *data, int step, void *in) // callback for kt_
 			}
 			MALLOC(s->seq[s->n], l);
 			memcpy(s->seq[s->n], p->ks->seq.s, l);
+
+			// mask low-quality bases (FASTQ only; FASTA has qual.l == 0)
+			if (p->opt->min_qual > 0 && p->ks->qual.l == (size_t)l) // qual.l = 0 for assemblies
+				mask_lowq(s->seq[s->n], p->ks->qual.s, l, p->opt->min_qual);
 
 			// mask the sequence outside the BED entries if a BED file is provided
 			if (c) mask_fa(s->seq[s->n], l, c);
@@ -278,6 +293,8 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 	pl.cnt = 0; // first pass
 	pl.snp = opt->snp;
 	pl.clust = 0;
+	pl.bm = 0;
+	pl.bm_mask = 0;
 	pl.sh->n_del_tot = 0;
 	const char *fa_fn;
 	const char *bed_fn;
@@ -325,6 +342,7 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 			}
 			kt_for(pl.opt->n_threads, filter_for, &pl, 1 << pl.opt->pre);
 			pg_msht_tighten(pl.sh);
+			pl.bm = pg_msht_build_bm(pl.sh, opt->write_info, &pl.bm_mask); // Use bitmap after filtering (no other k-mers are added)
 			if (opt->verbose) {
 				fprintf(stderr, "[M::%s] Current number of SNP-mer entries in the hash table: %ld\n", __func__, pl.sh->n_ins_tot);
 			}
@@ -353,13 +371,6 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
     return pl.sh;
 }
 
-
-// static void rearrange_for(void *data, long i, int tid) // callback for kt_for()
-// {
-// 	pg_msht_t *h = (pg_msht_t*)data;
-// 	pg_msht_rearrange(h, i);
-// }
-
 void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msht_t *h, const char *out_fn)
 {
 	pldat_t pl;
@@ -371,6 +382,9 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 	pl.cnt = 1;
 	pl.clust = 0;
 	pl.snp = opt->snp;
+	pl.bm = 0;
+	pl.bm_mask = 0;
+	if (opt->snp) pl.bm = pg_msht_build_bm(h, opt->write_info, &pl.bm_mask);
 
 	if (!bed_fn && opt->verbose)
 		fprintf(stderr, "[M::%s] Processing '%s'\n", __func__, fa_fn);
@@ -408,6 +422,7 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 		write_kmer_tsv(out_fn, pl.kh, pl.fa_fn, pl.opt->write_info, pl.opt->write_mko);
 	}
 	
+	free((void*)pl.bm);
 	if (pl.snp) {
 		pg_msht_destroy(pl.sh, opt->write_info);
 	} else {
@@ -415,7 +430,7 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 	}
 }
 
-void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *matrix_list_fn, const char *labels_list_fn, const char *out_fn)
+void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *matrix_fn, const char *labels_fn, const char *out_fn)
 {
     fprintf(stderr, "[M::%s] Counting SNP-mers in the input file\n", __func__);
     pldat_t pl;
@@ -427,6 +442,7 @@ void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *
     pl.cnt = 1;
     pl.snp = 1;
     pl.clust = 1;
+    pl.bm = pg_msht_build_bm(h, opt->write_info, &pl.bm_mask);
     pl.bed_fn = 0;
     pl.b = 0;
  
@@ -440,33 +456,24 @@ void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *
  
     kseq_destroy(pl.ks);
     gzclose(fp);
- 
+
     int n_mat = 0;
-    geno_mat_t **gms = load_matrices_from_list(pl.sh, matrix_list_fn, labels_list_fn, &n_mat);
+    geno_mat_t **gms = load_geno_matrix(pl.sh, matrix_fn, labels_fn, &n_mat);
     if (!gms) {
         pg_msht_destroy(pl.sh, opt->write_info);
         return;
     }
- 
-    fprintf(stderr, "[M::%s] Genotyping %d chromosome(s)\n", __func__, n_mat);
- 
+
+	fprintf(stderr, "[M::%s] Genotyping %d chromosomes\n", __func__, n_mat);
+
     if (out_fn == NULL) out_fn = "-";
     FILE *out = strcmp(out_fn, "-") != 0 ? fopen(out_fn, "w") : stdout;
     if (out) {
-        fprintf(out, "chr\tgenotype\tnn_sample\n");
-        for (int i = 0; i < n_mat; ++i) {
+        fprintf(out, "chr\tgenotype\tnn_pair\tvotes\tRMSE\n");
+        for (int i = 0; i < n_mat; ++i) { // genotype each chromosome
             geno_call_t call;
-            classify_genotype(pl.sh, gms[i], &call);
+            classify_genotype(pl.sh, gms[i], pl.opt->knn, &call, pl.opt->use_asm);
             print_geno_call(out, gms[i], &call);
-            if (call.nn >= 0)
-                fprintf(stderr, "[M::%s] %s: %s nn=%s dist=%.4f margin=%.4f shared=%d observed=%d missing=%d used=%d\n",
-                        __func__, gms[i]->chr, gms[i]->geno_names[call.geno], gms[i]->samp_names[call.nn],
-                        call.dist_best,
-                        call.nn2 >= 0 ? call.dist_second - call.dist_best : INFINITY,
-                        call.n_shared, call.n_obs, call.n_missing, call.n_used);
-            else
-                fprintf(stderr, "[W::%s] %s: no call (observed=%d missing=%d)\n",
-                        __func__, gms[i]->chr, call.n_obs, call.n_missing);
         }
         if (out != stdout) fclose(out);
     } else {

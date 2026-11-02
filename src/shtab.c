@@ -67,6 +67,52 @@ void pg_msht_destroy(pg_msht_t *h, int w)
 	free(h->h); free(h->ih); free(h);
 }
 
+// Build a small bitmap over the hashed flanks present in the table, so that count mode can reject almost every k-mer with one cache-resident read instead of buffering it.
+uint64_t *pg_msht_build_bm(const pg_msht_t *h, int w, uint64_t *nbits_mask)
+{
+	int64_t n = 0;
+	int64_t i;
+	khint_t k;
+	for (i = 0; i < (1LL << h->pre); ++i) {
+		if (w) {
+			for (k = 0; k != kh_end(h->ih[i].ih); ++k) {
+				if (kh_exist(h->ih[i].ih, k)) ++n;
+			}
+		}
+		else {
+			for (k = 0; k != kh_end(h->h[i].h); ++k) {
+				if (kh_exist(h->h[i].h, k)) ++n;
+			}
+		}
+	}
+	if (n == 0) return NULL; // nothing to add to bm
+
+	uint64_t nbits = 1024;
+	while (nbits < (uint64_t)n * 256) nbits <<= 1; // double nbits until optimal size
+	if (nbits > (1ULL << 33)) nbits = 1ULL << 33; // cap at 1 GB
+
+	uint64_t *bm = (uint64_t*)calloc(nbits / 64, sizeof(uint64_t)); // store bitmap as array of words
+	*nbits_mask = nbits - 1;
+	for (i = 0; i < (1LL << h->pre); ++i) {
+		if (w) {
+			for (k = 0; k != kh_end(h->ih[i].ih); ++k) {
+				if (kh_exist(h->ih[i].ih, k)) {
+					uint64_t h_flanks = ((kh_key(h->ih[i].ih, k) >> F_VAL_INFO_BITS) << h->pre) | (uint64_t)i; // re-build the hash flanks
+					bm[(h_flanks & *nbits_mask) >> 6] |= 1ULL << (h_flanks & 63); // set the bit finding the word it belongs to first
+				}
+			}
+		} else {
+			for (k = 0; k != kh_end(h->h[i].h); ++k) {
+				if (kh_exist(h->h[i].h, k)) {
+					uint64_t h_flanks = ((kh_key(h->h[i].h, k) >> F_VAL_INFO_BITS) << h->pre) | (uint64_t)i; // re-build the hash flanks
+					bm[(h_flanks & *nbits_mask) >> 6] |= 1ULL << (h_flanks & 63); // set the bit finding the word it belongs to first
+				}
+			}
+		}
+	}
+	return bm;
+}
+
 int64_t pg_msht_filter(pg_msht_t *h, long i, int n_proc, int n_tot, int ff, const pg_opt_t *opt)
 {	
 	int64_t n_del = 0;
@@ -102,11 +148,6 @@ int64_t pg_msht_filter(pg_msht_t *h, long i, int n_proc, int n_tot, int ff, cons
 			pg_sht_del(g->h, k);
 		}
 	}
-	
-	// if (ff && opt->verbose) {
-	// 	fprintf(stderr, "[M::%s] %lld multi-allelic SNP-mers deleted from hash table during final filter'\n", __func__, ma_snp);
-	// 	fprintf(stderr, "[M::%s] %lld non SNP-mers deleted from hash table during final filter'\n", __func__, non_snp);
-	// }
 
 	free(del_part);
 
@@ -713,62 +754,3 @@ void write_snpmer_tsv(const char *out_fn, pg_msht_t *h, const char *gnm_fn, int 
 
 	if (fp != stdout) fclose(fp);
 }
-
-// void merge_tsvs(const char *out_fn, const char *tmpdir, const char **fa_fns, int n_fns, int n_rows)
-// {
-// 	FILE **fps = malloc(n_fns * sizeof(FILE*));
-// 	for (int i = 0; i < n_fns; ++i) {
-// 		char p[4096];
-// 		snprintf(p, sizeof p, "%s/gnm.%d.tsv", tmpdir, i);
-// 		fps[i] = fopen(p, "r");
-// 		if (!fps[i])
-// 			fprintf(stderr, "[M::%s] Failed to open '%s'\n", __func__, p);
-// 	}
-
-// 	FILE *out;
-// 	if ((out = strcmp(out_fn, "-") ? fopen(out_fn, "wb") : stdout) == 0)
-// 		return;
-
-// 	// header: row-label column from file 0's header, sample names from fa_fns
-// 	char line[65536];
-// 	for (int i = 0; i < n_fns; ++i) {
-// 		if (fps[i]) fgets(line, sizeof line, fps[i]); // discard header line, just advance past it
-// 		if (i == 0) {
-// 			line[strcspn(line, "\n")] = '\0';
-// 			char *tab = strchr(line, '\t');
-// 			if (tab) *tab = '\0';
-// 			fprintf(out, "%s", line); // "kmer" or "snpmer"
-// 		}
-
-// 		const char *bname = strrchr(fa_fns[i], '/');
-// 		bname = bname ? bname + 1 : fa_fns[i];
-// 		fprintf(out, "\t%s", bname);
-// 	}
-// 	fprintf(out, "\n");
-
-// 	// content: one row per k-mer/SNPmer, values from each file's matching line
-// 	for (int r = 0; r < n_rows; ++r) {
-// 		for (int i = 0; i < n_fns; ++i) {
-// 			if (!fps[i] || !fgets(line, 65536, fps[i])) {
-// 				fprintf(out, "%s.", i ? "\t" : "");
-// 				continue;
-// 			}
-// 			line[strcspn(line, "\n")] = '\0';
-
-// 			char *tab = strchr(line, '\t');
-// 			if (!tab) { fprintf(out, "%s.", i ? "\t" : ""); continue; }
-// 			*tab = '\0';
-
-// 			if (i == 0) fprintf(out, "%s", line); // row key, from file 0 only
-// 			fprintf(out, "\t%s", tab + 1);        // this sample's value
-// 		}
-// 		fprintf(out, "\n");
-// 	}
-
-// 	for (int i = 0; i < n_fns; ++i)
-// 		if (fps[i]) fclose(fps[i]);
-// 	free(fps);
-
-// 	if (out && out != stdout)
-// 		fclose(out);
-// }

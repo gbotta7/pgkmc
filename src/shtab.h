@@ -75,6 +75,9 @@ typedef struct { // terminal options
     int write_mko;
     int filt_type;
     int verbose;
+    int knn;
+    int use_asm;
+    int min_qual; // minimum Phred base quality; bases below it are masked to N (0 = off)
 } pg_opt_t;
 
 typedef struct {
@@ -130,6 +133,7 @@ void pg_msht_clear1(pg_msht_t *h, long i, int f);
 void pg_msht_clear2(pg_msht_t *h, long i, int w);
 int64_t pg_msht_filter(pg_msht_t *h, long i, int n_proc, int n_tot, int ff, const pg_opt_t *opt);
 void pg_msht_tighten(pg_msht_t *h);
+uint64_t *pg_msht_build_bm(const pg_msht_t *h, int w, uint64_t *nbits_mask);
 pg_msht_t *pg_msht_repopulate(const char *kmer_file, pg_opt_t *opt);
 // void pg_msht_rearrange(pg_msht_t *h, long i);
 

@@ -147,10 +147,11 @@ int main_count(int argc, char *argv[])
         { "verbose", ko_no_argument, 310 },
 		{ "bed", ko_required_argument, 311 },
 		{ "kmers", ko_required_argument, 312 },
+		{ "min_qual", ko_required_argument, 313 },
         { 0, 0, 0 }
     };
 
-	while ((c = ketopt(&o, argc, argv, 1, "k:p:f:K:t:wo:vb:", long_opts)) >= 0) {
+	while ((c = ketopt(&o, argc, argv, 1, "k:p:f:K:t:wo:vb:q:", long_opts)) >= 0) {
         if      (c == 'k' || c == 301) opt.k = atoi(o.arg);
 		else if (c == 302) opt.snp = 1;
         else if (c == 'p' || c == 303) opt.pre = atoi(o.arg);
@@ -163,6 +164,7 @@ int main_count(int argc, char *argv[])
         else if (c == 'v' || c == 310) opt.verbose = 1;
 		else if (c == 'b' || c == 311) bed_fn = o.arg;
 		else if (c == 312) kmer_file = o.arg;
+		else if (c == 'q' || c == 313) opt.min_qual = atoi(o.arg);
     }
 
 	if (argc - o.ind != 1) {
@@ -184,7 +186,8 @@ int main_count(int argc, char *argv[])
 				"-o/--output FILE");
 		fprintf(stderr, "  %-10s list of k-mers or SNP-mers as a text file\n",
 				"--kmers FILE");
-		
+		fprintf(stderr, "  %-10s mask bases with Phred quality below INT (FASTQ, Phred+33) [%d]\n",
+        		"-q/--min_qual INT", opt.min_qual);
 		return 1;
 	}
 
@@ -199,6 +202,10 @@ int main_count(int argc, char *argv[])
 	}
 	if (!opt.snp) {
 		fprintf(stderr, "[W::%s] --snp not activated: parameter -f/filt_type has no effect in this mode\n", __func__);
+	}
+	if (opt.min_qual < 0 || opt.min_qual > 93) {
+		fprintf(stderr, "[E::%s] -q/--min_qual must be in [0,93]\n", __func__);
+		return 1;
 	}
 
 	// start
@@ -226,8 +233,8 @@ int main_clust(int argc, char *argv[])
 	pg_msht_t *h;
 	char *fn_out = 0;
 	char *kmer_file = 0;
-	char *matrix_list = 0;
-	char *clusters_list = 0;
+	char *matrix_fn = 0;
+	char *labels_fn = 0;
 	int c;
 	pg_opt_t opt;
 	ketopt_t o = KETOPT_INIT;
@@ -241,12 +248,15 @@ int main_clust(int argc, char *argv[])
 		{ "output",     ko_required_argument, 305 },
 		{ "verbose",    ko_no_argument,       306 },
 		{ "kmers",      ko_required_argument, 307 },
-		{ "matrices",   ko_required_argument, 308 },
+		{ "matrix",   	ko_required_argument, 308 },
 		{ "clusters",   ko_required_argument, 309 },
+		{ "knn",        ko_required_argument, 310 },
+		{ "asm",		ko_no_argument,		  311 },
+		{ "min_qual",	ko_required_argument, 312 },
 		{ 0, 0, 0 }
 	};
  
-	while ((c = ketopt(&o, argc, argv, 1, "k:p:K:t:o:v", long_opts)) >= 0) {
+	while ((c = ketopt(&o, argc, argv, 1, "k:p:K:t:o:vn:aq:", long_opts)) >= 0) {
 		if      (c == 'k' || c == 301) opt.k = atoi(o.arg);
 		else if (c == 'p' || c == 302) opt.pre = atoi(o.arg);
 		else if (c == 'K' || c == 303) opt.chunk_size = mm_parse_num(o.arg);
@@ -254,8 +264,11 @@ int main_clust(int argc, char *argv[])
 		else if (c == 'o' || c == 305) fn_out = o.arg;
 		else if (c == 'v' || c == 306) opt.verbose = 1;
 		else if (c == 307) kmer_file = o.arg;
-		else if (c == 308) matrix_list = o.arg;
-		else if (c == 309) clusters_list = o.arg;
+		else if (c == 308) matrix_fn = o.arg;
+		else if (c == 309) labels_fn = o.arg;
+		else if (c == 'n' || c == 310) opt.knn = atoi(o.arg);
+		else if (c == 'a' || c == 311) opt.use_asm = 1;
+		else if (c == 'q' || c == 312) opt.min_qual = atoi(o.arg);
 	}
  
 	if (argc - o.ind != 1) {
@@ -269,12 +282,18 @@ int main_clust(int argc, char *argv[])
 		fprintf(stderr, "  %-10s verbose output\n",             "-v/--verbose");
 		fprintf(stderr, "  %-10s output chromosome genotypes in TSV format [stdout]\n",
 				"-o/--output FILE");
-		fprintf(stderr, "  %-10s list of SNP-mers to count (must cover all SNP-mers in the matrices)\n",
+		fprintf(stderr, "  %-10s list of SNP-mers to count, one per line (must cover all SNP-mers in the matrix)\n",
 				"--kmers FILE");
-		fprintf(stderr, "  %-10s text file with one reference sample matrix path per line (one chromosome per matrix)\n",
-				"--matrices FILE");
-		fprintf(stderr, "  %-10s text file with one genotype-labels path per line (sample<TAB>genotype), same order as --matrices\n",
+		fprintf(stderr, "  %-10s reference matrix TSV for all chromosomes (snpmer, samples..., chr); split by chr internally\n",
+				"--matrix FILE");
+		fprintf(stderr, "  %-10s haplotype class labels TSV for all chromosomes (haplotype<TAB>class<TAB>chr)\n",
 				"--clusters FILE");
+		fprintf(stderr, "  %-10s number of nearest reference haplotype pairs that vote on the genotype [%d]\n",
+        		"-n/--knn INT", opt.knn);
+		fprintf(stderr, "  %-10s wheter genotyping occurs from a short-read file or an assembly\n",
+        		"-a/--asm");
+		fprintf(stderr, "  %-10s mask bases with Phred quality below INT (FASTQ, Phred+33) [%d]\n",
+        		"-q/--min_qual INT", opt.min_qual);
 		return 1;
 	}
  
@@ -287,12 +306,20 @@ int main_clust(int argc, char *argv[])
 		fprintf(stderr, "[E::%s] --kmers is required in pgkmc clust\n", __func__);
 		return 1;
 	}
-	if (!matrix_list) {
-		fprintf(stderr, "[E::%s] --matrices is required in pgkmc clust\n", __func__);
+	if (!matrix_fn) {
+		fprintf(stderr, "[E::%s] --matrix is required in pgkmc clust\n", __func__);
 		return 1;
 	}
-	if (!clusters_list) {
+	if (!labels_fn) {
 		fprintf(stderr, "[E::%s] --clusters is required in pgkmc clust\n", __func__);
+		return 1;
+	}
+	if (opt.knn < 1) {
+		fprintf(stderr, "[E::%s] -n/--knn must be >= 1\n", __func__);
+		return 1;
+	}
+	if (opt.min_qual < 0 || opt.min_qual > 93) {
+		fprintf(stderr, "[E::%s] -q/--min_qual must be in [0,93]\n", __func__);
 		return 1;
 	}
  
@@ -306,7 +333,7 @@ int main_clust(int argc, char *argv[])
  
 	// second step: genotype every chromosome against its matrix
 	if (fn_out == NULL) fn_out = "-"; // redirect output to stdout
-	pg_clust(argv[o.ind], &opt, h, matrix_list, clusters_list, fn_out);
+	pg_clust(argv[o.ind], &opt, h, matrix_fn, labels_fn, fn_out);
 	fprintf(stderr, "[M::%s] Genotyped %s\n", __func__, argv[o.ind]);
  
 	return 0;

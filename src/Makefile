@@ -37,6 +37,6 @@ count.o:   count.c   bed.h clust.h shtab.h utils.h kseq.h kthread.h parser.h
 khtab.o:   khtab.c   khtab.h utils.h
 shtab.o:   shtab.c   shtab.h utils.h khashl.h parser.h kseq.h
 kthread.o: kthread.c kthread.h
-parser.o:  parser.c  parser.h kseq.h utils.h
+parser.o:  parser.c  parser.h kseq.h utils.h clust.h
 sys.o:     sys.c     sys.h
 utils.o:   utils.c   shtab.h utils.h

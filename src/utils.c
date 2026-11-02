@@ -43,6 +43,9 @@ void pg_opt_init(pg_opt_t *o)
     o->write_info = 0;
     o->write_mko = S_COUNTER_MAX;
 	o->verbose = 0;
+    o->knn = 10;
+    o->use_asm = 0;
+    o->min_qual = 0;
 }
 
 int64_t mm_parse_num(const char *str)
