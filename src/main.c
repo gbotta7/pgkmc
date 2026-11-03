@@ -8,6 +8,10 @@
 #include "sys.h"
 #include "utils.h"
 
+#ifndef PGKMC_DATA_DIR
+#error "PGKMC_DATA_DIR is not defined, look at the Makefile"
+#endif
+
 int main_detect(int argc, char *argv[])
 {
 	pg_msht_t *h;
@@ -232,9 +236,9 @@ int main_clust(int argc, char *argv[])
 {
 	pg_msht_t *h;
 	char *fn_out = 0;
-	char *kmer_file = 0;
-	char *matrix_fn = 0;
-	char *labels_fn = 0;
+	char *kmer_file = PGKMC_DATA_DIR "/decision_snpmers.txt";
+	char *matrix_fn = PGKMC_DATA_DIR "/cm_ht_matrix.tsv";
+	char *labels_fn = PGKMC_DATA_DIR "/cm_ht_labels.tsv";
 	int c;
 	pg_opt_t opt;
 	ketopt_t o = KETOPT_INIT;

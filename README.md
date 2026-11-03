@@ -5,9 +5,10 @@
 2. Counts
 3. Optionally, the positions of each k-mer or SNP-mer in that sample
 
-Additionaly, pgkmc can genotype centromeres from short or long reads FASTA/FASTQ files.
+Additionaly, pgkmc can genotype centromeres from short/long-read FASTA/FASTQ files, or from assemblies (also incomplete).
 
 Typical use cases can be:
+- **Genotyping centromeres** — Genotype centromeres of each chromosome using assemblies or short/long-read files.
 - **Pangenome SNP calling** — efficiently identify genome-wide SNPs across large collections of bacterial, fungal, or viral assemblies without whole-genome alignment and also in repetitive regions.
 - **Population genomics** — characterize allele frequencies and SNP distributions across hundreds to thousands of genomes.
 
@@ -29,7 +30,7 @@ When counting k-mers, pgkmc operates in one stage:
 
 The genome is streamed in chunks and its k-mers are extracted and inserted into a partitioned hash table, where they get counted.
 
-When genotyping centromeres, pgkmc reads a FASTA/FASTQ file and, based on some fixed and already detected SNP-mers, it moves down in a decision tree to genotype each chromosome. **Centromere genotyping (`pgkmc clust`)**
+When genotyping centromeres, pgkmc reads a FASTA/FASTQ file and, based on some fixed and already detected SNP-mers (from HPRC assemblies), it finds the k-nearest neighbours genotypes and assign the file to the most common genotype using majority voting. **Centromere genotyping (`pgkmc clust`)**
 
 ---
 
@@ -61,15 +62,15 @@ pgkmc count
 pgkmc clust
 ```
 
-To identify unique SNP-mers present in at least 90% of the genomes in the mtb152 dataset, and count them in a specific file, using 12 threads:
+To identify unique SNP-mers present in at least 90% of the genomes in the mtb152 dataset, and count them in a specific file, using 6 threads:
 ```bash
-pgkmc detect --snp -k21 -f2 --msf 0.9 -t12 -o mtb152_snpmers.txt mtb152_asm/*.fa;
-pgkmc count --snp -k21 -t12 --kmers mtb152_snpmers.txt -o mtb152_snpmers.tsv mtb152_asm/fileN.fa;
+pgkmc detect --snp -k21 -f2 --msf 0.9 -t6 -o mtb152_snpmers.txt mtb152_asm/*.fa;
+pgkmc count --snp -k21 -t6 --kmers mtb152_snpmers.txt -o mtb152_snpmers.tsv mtb152_asm/fileN.fa;
 ```
 
-To additionally keep mapping information of the SNP-mers:
+To additionally retain mapping information of the SNP-mers:
 ```bash
-pgkmc count --snp -w -k21 -t12 --kmers mtb152_snpmers.txt -o mtb152_snpmers.tsv mtb152_asm/fileN.fa;
+pgkmc count --snp -w -k21 -t6 --kmers mtb152_snpmers.txt -o mtb152_snpmers.tsv mtb152_asm/fileN.fa;
 ```
 
 To count k-mers in a specific file, using 3 threads:
@@ -83,14 +84,19 @@ pgkmc detect --snp -k31 -f0 --msf 0.5 --maf 0.05 -t3 \
         -b hprc_cent_anno_files.txt \ 
         -o hprc_cent_snpmers.txt \ 
         hprc_asm/*.fa;
-pgkmc count --snp -k31 -t12 --kmers hprc_cent_snpmers.txt \ 
+pgkmc count --snp -k31 -t3 --kmers hprc_cent_snpmers.txt \ 
         -b hprc_cent_anno/fileN.bed \ 
         -o hprc_cent_snpmers.tsv hprc_asm/fileN.fa;
 ```    
-To cluster centromeres in human samples from a CRAM file:
+To genotype centromeres in human samples from a BAM/CRAM file (filtering bases with quality lower than Q20) using the 5-nearest neighbours:
 ```bash
 samtools fastq --reference ref.fa fileN.cram | \
-        pgkmc clust -k31 -t3 -K 0.1g -o gtype.tsv --kmers hprc_cent_snpmers.txt --tree hprc_cent_tree_structure.tsv -;
+        pgkmc clust -k31 -t3 -q20 -K0.1g -n5 -o gtype.tsv -;
+```    
+To genotype centromeres in human samples from two haplotype assemblies using the 5-nearest neighbours:
+```bash
+zcat hap1.fa.gz hap2.fa.gz | \
+        pgkmc clust --asm -k31 -t3 -K0.1g -n5 -o gtype.tsv -;
 ```    
 
 #### SNP filtering (`-f/--filt_type`)
@@ -109,6 +115,9 @@ Use `-f 1` or `-f 0` if you want to retain non-unique SNP-mers.
 
 `-b/--bed_list` takes a single text file listing the paths of all the BED files in pgkmc detect, one per fasta file passed. Therefore, the list must have exactly as many entries as there are input files. In pgkmc count, `-b/--bed` takes a single bed file with the regions of interest in the input fasta file.
 
+#### Filtering bases with low quality in FASTQ files (`-q`)
+
+-q/--min_qual masks bases whose Phred quality score is below the specified threshold.
 ---
 
 ## File overview
@@ -123,7 +132,7 @@ Use `-f 1` or `-f 0` if you want to retain non-unique SNP-mers.
 | `shtab.c/h` | Partitioned SNP-mer hash table: insert, count, filter |
 | `utils.c/h` | K-mer hashing, nucleotide tables, option initialization |
 | `kthread.c/h` | Thread pool primitives (`kt_for`, `kt_pipeline`) |
-| `parser.c/h` | FASTA/FASTQ streaming via kseq |
+| `parser.c/h` | FASTA/FASTQ streaming via kseq and detection SNP-mers/compositions loading |
 | `kseq.h` | Single-header FASTA/FASTQ parser |
 | `khashl.h` | Generic open-addressing hash table |
 | `ketopt.h` | Lightweight command-line option parser |

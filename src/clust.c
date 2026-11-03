@@ -160,7 +160,7 @@ void classify_query(const geno_mat_t *gm, const double *q, int k, geno_call_t *c
         call->gt_idx = best;
         call->k_used = nn;
         call->votes = votes[best];
-        call->dist_vote = sumd[best] / votes[best]; // avg distance across the votes for that genotype
+        call->dist_vote = sumd[best] / votes[best]; // avg RMSE across the votes for that genotype
  
         for (int r = 0; r < nn; ++r) // nearest pair of the winning genotype (always a voter)
             if (tg[r] == best) {

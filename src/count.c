@@ -469,7 +469,7 @@ void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *
     if (out_fn == NULL) out_fn = "-";
     FILE *out = strcmp(out_fn, "-") != 0 ? fopen(out_fn, "w") : stdout;
     if (out) {
-        fprintf(out, "chr\tgenotype\tnn_pair\tvotes\tRMSE\n");
+        fprintf(out, "chr\tgenotype\tnn_pair\tvotes\tavg_RMSE\n");
         for (int i = 0; i < n_mat; ++i) { // genotype each chromosome
             geno_call_t call;
             classify_genotype(pl.sh, gms[i], pl.opt->knn, &call, pl.opt->use_asm);

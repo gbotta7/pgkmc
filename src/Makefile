@@ -6,6 +6,9 @@ OBJS=		bed.o clust.o count.o khtab.o shtab.o kthread.o parser.o sys.o utils.o
 PROG=		pgkmc
 LIBS=		-lm -lz -lpthread
 
+# genotyping files, compiled into the binary as an absolute path
+DATA_DIR?=	$(abspath $(CURDIR)/../data)
+
 ifneq ($(asan),)
 	CFLAGS+=-fsanitize=address
 	LIBS+=-fsanitize=address
@@ -16,6 +19,9 @@ endif
 
 .c.o:
 		$(CC) -c $(CFLAGS) $(CPPFLAGS) $(INCLUDES) $< -o $@
+
+# only main.c needs to know the data directory
+main.o: CPPFLAGS += -DPGKMC_DATA_DIR=\"$(DATA_DIR)\"
 
 all:$(PROG)
 
@@ -28,7 +34,6 @@ clean:
 depend:
 		(LC_ALL=C; export LC_ALL; makedepend -Y -- $(CFLAGS) $(DFLAGS) -- *.c)
 
-# DO NOT DELETE
 
 main.o:    main.c    shtab.h utils.h ketopt.h sys.h
 bed.o:     bed.c     bed.h khashl.h utils.h

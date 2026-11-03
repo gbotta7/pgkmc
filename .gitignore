@@ -1,21 +1,3 @@
 # Build artifacts
 src/*.o
-src/pgtools
-
-# Ignore workflow logs, data, results and plots
-workflows/**/logs/
-workflows/**/logs/**
-workflows/**/data/
-workflows/**/data/**
-workflows/**/results/
-workflows/**/results/**
-workflows/**/plots/
-workflows/**/plots/**
-workflows/**/*.log
-
-# Ignore hidden files/directories inside workflow
-workflows/**/.*
-workflows/**/.**/
-
-# Ignore nohup output files
-nohup.out
+src/pgkmc
