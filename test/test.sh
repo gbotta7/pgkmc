@@ -34,7 +34,7 @@ else
     echo "OK: detect ran to completion"
 
     # 2) the SNP-mers are the expected ones (sort: output order may depend on hashing/threads)
-    if diff <(LC_ALL=C sort "$TMP/snpmers.txt") <(LC_ALL=C sort "$ROOT/test/expected_snpmers_full.txt") > "$TMP/snpmers_full.diff"; then
+    if diff <(LC_ALL=C sort "$TMP/snpmers.txt") <(LC_ALL=C sort "$ROOT/test/results/expected_snpmers_full.txt") > "$TMP/snpmers_full.diff"; then
         echo "OK: detect SNP-mers match expected on full assemblies"
     else
         echo "FAIL: detect SNP-mers differ from expected (first 20 lines of diff):"
@@ -51,7 +51,7 @@ else
     echo "OK: detect ran to completion"
 
     # 4) the SNP-mers are the expected ones (sort: output order may depend on hashing/threads)
-    if diff <(LC_ALL=C sort "$TMP/snpmers.txt") <(LC_ALL=C sort "$ROOT/test/expected_snpmers_bed.txt") > "$TMP/snpmers_bed.diff"; then
+    if diff <(LC_ALL=C sort "$TMP/snpmers.txt") <(LC_ALL=C sort "$ROOT/test/results/expected_snpmers_bed.txt") > "$TMP/snpmers_bed.diff"; then
         echo "OK: detect SNP-mers match expected on specified bed regions"
     else
         echo "FAIL: detect SNP-mers differ from expected (first 20 lines of diff):"
