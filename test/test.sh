@@ -43,7 +43,9 @@ else
 fi
 
 # 3) runs to completion (exit 0) and writes a non-empty output on specified bed regions
-if ! "$PGKMC" detect -t3 -k31 -b "$ROOT"/test/data/bed_list.txt -o "$TMP"/snpmers.txt "$ROOT"/test/data/test*.fa.gz 2> "$TMP"/detect.log; then
+BEDS=( "$ROOT"/test/data/test*.bed )
+printf '%s\n' "${BEDS[@]}" > "$TMP/bed_list.txt"
+if ! "$PGKMC" detect -t3 -k31 -b "$TMP"/bed_list.txt -o "$TMP"/snpmers.txt "$ROOT"/test/data/test*.fa.gz 2> "$TMP"/detect.log; then
     echo "FAIL: detect exited with an error"; cat "$TMP/detect.log"; n_fail=$((n_fail+1));
 elif [ ! -s "$TMP/snpmers.txt" ]; then
     echo "FAIL: detect produced an empty output"; n_fail=$((n_fail+1));
