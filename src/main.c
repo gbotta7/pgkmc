@@ -24,19 +24,19 @@ int main_detect(int argc, char *argv[])
 	pg_opt_t opt;
 	ketopt_t o = KETOPT_INIT;
 	pg_opt_init(&opt);
+	opt.snp = 1; // detect is only for SNP-mers
 
 	static ko_longopt_t long_opts[] = {
         { "k_length", ko_required_argument, 301 },
         { "msf", ko_required_argument, 302 },
 		{ "maf", ko_required_argument, 303 },
-		{ "snp", ko_no_argument, 304 },
-        { "pre", ko_required_argument, 305 },
-        { "filt_type", ko_required_argument, 306 },
-        { "chunk_size", ko_required_argument, 307 },
-        { "threads", ko_required_argument, 308 },
-		{ "output", ko_required_argument, 309 },
-        { "verbose", ko_no_argument, 310 },
-		{ "bed_list", ko_required_argument, 311 },
+        { "pre", ko_required_argument, 304 },
+        { "filt_type", ko_required_argument, 305 },
+        { "chunk_size", ko_required_argument, 306 },
+        { "threads", ko_required_argument, 307 },
+		{ "output", ko_required_argument, 308 },
+        { "verbose", ko_no_argument, 309 },
+		{ "bed_list", ko_required_argument, 310 },
         { 0, 0, 0 }
     };
 
@@ -44,14 +44,13 @@ int main_detect(int argc, char *argv[])
         if      (c == 'k' || c == 301) opt.k = atoi(o.arg);
         else if (c == 302) opt.msf = atof(o.arg);
 		else if (c == 303) opt.maf = atof(o.arg);
-		else if (c == 304) opt.snp = 1;
-        else if (c == 'p' || c == 305) opt.pre = atoi(o.arg);
-        else if (c == 'f' || c == 306) opt.filt_type = atoi(o.arg);
-        else if (c == 'K' || c == 307) opt.chunk_size = mm_parse_num(o.arg);
-        else if (c == 't' || c == 308) opt.n_threads = atoi(o.arg);
-		else if (c == 'o' || c == 309) fn_out = o.arg;
-        else if (c == 'v' || c == 310) opt.verbose = 1;
-		else if (c == 'b' || c == 311) bed_list_fn = o.arg;
+        else if (c == 'p' || c == 304) opt.pre = atoi(o.arg);
+        else if (c == 'f' || c == 305) opt.filt_type = atoi(o.arg);
+        else if (c == 'K' || c == 306) opt.chunk_size = mm_parse_num(o.arg);
+        else if (c == 't' || c == 307) opt.n_threads = atoi(o.arg);
+		else if (c == 'o' || c == 308) fn_out = o.arg;
+        else if (c == 'v' || c == 309) opt.verbose = 1;
+		else if (c == 'b' || c == 310) bed_list_fn = o.arg;
     }
 
 	if (argc - o.ind < 1) {
@@ -62,7 +61,6 @@ int main_detect(int argc, char *argv[])
 				"--msf FLOAT", opt.msf);
 		fprintf(stderr, "  %-10s minimum allelic frequency of SNP-mers across input samples [%g]\n",
 				"--maf FLOAT", opt.maf);
-		fprintf(stderr, "  %-10s snp mode to count SNP-mers\n",         "--snp");
 		fprintf(stderr, "  %-10s prefix length [%d]\n",         "-p/--pre INT",  opt.pre);
 		fprintf(stderr, "  %-10s filter type [%d]\n",           "-f/--filt_type INT",  opt.filt_type);
 		fprintf(stderr, "  %-10s number of worker threads [%d]\n",
@@ -79,11 +77,9 @@ int main_detect(int argc, char *argv[])
 	}
 
 	// warnings and errors
-	if (opt.snp) {
-		if (opt.pre < F_VAL_INFO_BITS) {
-			fprintf(stderr, "[E::%s] -p/--pre must not be smaller than %d\n", __func__, F_VAL_INFO_BITS);
-			return 1;
-		}
+	if (opt.pre < F_VAL_INFO_BITS) {
+		fprintf(stderr, "[E::%s] -p/--pre must not be smaller than %d\n", __func__, F_VAL_INFO_BITS);
+		return 1;
 	}
 	if (opt.k >= 32 || !(opt.k % 2)) {
 		fprintf(stderr, "[E::%s] -k/--k_length must be odd and <=31\n", __func__);

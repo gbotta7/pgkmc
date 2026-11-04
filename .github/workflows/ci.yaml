@@ -23,6 +23,10 @@ jobs:
         cd src
         make CC=${{ matrix.compiler }}
         file pgkmc | grep x86-64
+      
+    - name: Run tests
+      run: |
+        bash test/test.sh
 
   build-linux-aarch64:
     name: Linux aarch64
@@ -47,9 +51,10 @@ jobs:
           apt-get update -q -y
           apt-get install -q -y make ${{ matrix.compiler }} zlib1g-dev file
         run: |
-          cd /pgkmc/src
-          make CC=${{ matrix.compiler }} arm_neon=1 aarch64=1 -j
-          file pgkmc | grep aarch64
+            cd /pgkmc/src
+            make CC=${{ matrix.compiler }} arm_neon=1 aarch64=1 -j
+            file pgkmc | grep aarch64
+            bash /pgkmc/test/test.sh
 
   build-mac-arm64:
     name: Mac ARM64
@@ -67,4 +72,8 @@ jobs:
         cd src
         make CC=${{ matrix.compiler }} arm_neon=1 aarch64=1 -j
         file pgkmc | grep arm64
+    
+    - name: Run tests
+      run: |
+        bash test/test.sh
         

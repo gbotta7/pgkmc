@@ -113,7 +113,7 @@ Use `-f 1` or `-f 0` if you want to retain non-unique SNP-mers.
 
 #### Restricting to specific regions (`-b`)
 
-`-b/--bed_list` takes a single text file listing the paths of all the BED files in pgkmc detect, one per fasta file passed. Therefore, the list must have exactly as many entries as there are input files. In pgkmc count, `-b/--bed` takes a single bed file with the regions of interest in the input fasta file.
+`-b/--bed_list` takes a single text file listing the paths of all the BED files in pgkmc detect, one per fasta file passed. Therefore, the list must have exactly as many entries as there are input files, and in the exact same order. In pgkmc count, `-b/--bed` takes a single bed file with the regions of interest in the input fasta file.
 
 #### Filtering bases with low quality in FASTQ files (`-q`)
 

@@ -1,0 +1,5 @@
+test1.bed
+test2.bed
+test3.bed
+test4.bed
+test5.bed
