@@ -309,7 +309,11 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 		// open fasta file
 		gzFile fp;
 		fp = fa_fn == 0 || strcmp(fa_fn, "-") == 0? gzdopen(0, "r") : gzopen(fa_fn, "r");
-		if (fp == 0) return 0;
+		if (fp == 0) {
+			fprintf(stderr, "[E::%s] failed to open '%s'\n", __func__, fa_fn);
+			pg_msht_destroy(pl.sh, opt->write_info);
+			return 0;
+		}
 		pl.ks = kseq_init(fp);
 		pl.fa_fn = fa_fn;
 
@@ -318,6 +322,13 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 		pl.b = 0;
 		if (pl.bed_fn) {
 			pl.b = bed_read(pl.bed_fn);
+			if (!pl.b) {
+				fprintf(stderr, "[E::%s] failed to open BED file '%s'\n", __func__, pl.bed_fn);
+				kseq_destroy(pl.ks);
+				gzclose(fp);
+				pg_msht_destroy(pl.sh, opt->write_info);
+				return 1;
+			}
 		}
 
 		kt_pipeline(3, worker_pipeline, &pl, 3);
@@ -371,7 +382,7 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
     return pl.sh;
 }
 
-void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msht_t *h, const char *out_fn)
+int pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msht_t *h, const char *out_fn)
 {
 	pldat_t pl;
 	pl.n_done = 0;
@@ -394,7 +405,13 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 	// open fasta file
 	gzFile fp;
 	fp = fa_fn == 0 || strcmp(fa_fn, "-") == 0? gzdopen(0, "r") : gzopen(fa_fn, "r");
-	if (fp == 0) return;
+	if (fp == 0) {
+		fprintf(stderr, "[E::%s] failed to open '%s'\n", __func__, fa_fn);
+		free((void*)pl.bm);
+		if (pl.snp) pg_msht_destroy(pl.sh, opt->write_info);
+		else pg_mkht_destroy(pl.kh, opt->write_info);
+		return 1;
+	}
 	pl.ks = kseq_init(fp);
 	pl.fa_fn = fa_fn;
 
@@ -403,6 +420,15 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 	pl.b = 0;
 	if (pl.bed_fn) {
 		pl.b = bed_read(pl.bed_fn);
+		if (!pl.b) {
+			fprintf(stderr, "[E::%s] failed to open BED file '%s'\n", __func__, pl.bed_fn);
+			kseq_destroy(pl.ks);
+			gzclose(fp);
+			free((void*)pl.bm);
+			if (pl.snp) pg_msht_destroy(pl.sh, opt->write_info);
+			else pg_mkht_destroy(pl.kh, opt->write_info);
+			return 1;
+		}
 	}
 
 	kt_pipeline(3, worker_pipeline, &pl, 3);
@@ -428,9 +454,11 @@ void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msh
 	} else {
 		pg_mkht_destroy(pl.kh, opt->write_info);
 	}
+
+	return 0;
 }
 
-void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *matrix_fn, const char *labels_fn, const char *out_fn)
+int pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *matrix_fn, const char *labels_fn, const char *out_fn)
 {
     fprintf(stderr, "[M::%s] Counting SNP-mers in the input file\n", __func__);
     pldat_t pl;
@@ -448,7 +476,11 @@ void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *
  
     gzFile fp;
     fp = fa_fn == 0 || strcmp(fa_fn, "-") == 0 ? gzdopen(0, "r") : gzopen(fa_fn, "r");
-    if (fp == 0) return;
+    if (fp == 0) {
+		fprintf(stderr, "[E::%s] failed to open '%s'\n", __func__, fa_fn);
+		pg_msht_destroy(pl.sh, opt->write_info);
+		return 1;
+	}
     pl.ks = kseq_init(fp);
     pl.fa_fn = fa_fn;
  
@@ -461,7 +493,7 @@ void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *
     geno_mat_t **gms = load_geno_matrix(pl.sh, matrix_fn, labels_fn, &n_mat);
     if (!gms) {
         pg_msht_destroy(pl.sh, opt->write_info);
-        return;
+        return 1;
     }
 
 	fprintf(stderr, "[M::%s] Genotyping %d chromosomes\n", __func__, n_mat);
@@ -482,4 +514,6 @@ void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *
  
     destroy_geno_matrices(gms, n_mat);
     pg_msht_destroy(pl.sh, opt->write_info);
+
+	return 0;
 }

@@ -115,6 +115,11 @@ int main_detect(int argc, char *argv[])
 
 	// start
 	h = pg_detect(argv + o.ind, n_bed ? bed_fns : 0, n_fa, &opt, fn_out);
+	if (h == 0) {
+		// pg_detect already printed the specific error
+		return 1;
+	}
+
 	fprintf(stderr, "[M::%s] Detected required k-mers in %d files\n", __func__, n_fa);
 
 	pg_msht_destroy(h, opt.write_info);
@@ -177,8 +182,8 @@ int main_count(int argc, char *argv[])
 		fprintf(stderr, "  %-10s number of worker threads [%d]\n",
 				"-t/--threads INT",  opt.n_threads);
 		fprintf(stderr, "  %-10s chunk size [%ld]\n",           "-K/--chunk_size INT", (long)opt.chunk_size);
-		fprintf(stderr, "  %-10s write pangenome hits in the info file up to --write_mko occurrences\n", "-w");
-		fprintf(stderr, "  %-10s write up to INT pangenome hits in the info file [%d]\n", "--write_mko INT", opt.write_mko);
+		fprintf(stderr, "  %-10s write pangenome hits in the info file up to --write_mko occurrences (only in --snp mode)\n", "-w");
+		fprintf(stderr, "  %-10s write up to INT pangenome hits in the info file (only in --snp mode) [%d]\n", "--write_mko INT", opt.write_mko);
 		fprintf(stderr, "  %-10s BED file with the regions of interest\n",
 				"-b/--bed FILE");
 		fprintf(stderr, "  %-10s verbose output\n",             "-v/--verbose");
@@ -192,9 +197,16 @@ int main_count(int argc, char *argv[])
 	}
 
 	// warnings and errors
-	if (opt.k >= 32 || !(opt.k % 2)) {
-		fprintf(stderr, "[E::%s] -k/--k_length must be odd and <=31\n", __func__);
-		return 1;
+	if (opt.snp) {
+		if (opt.k < 1 || opt.k > 31 || !(opt.k % 2)) {
+			fprintf(stderr, "[E::%s] -k/--k_length must be odd and <=31 and > 0 with --snp\n", __func__);
+			return 1;
+		}
+	} else {
+		if (opt.k < 1 || opt.k > 31) {
+			fprintf(stderr, "[E::%s] -k/--k_length must be <=31 and > 0\n", __func__);
+			return 1;
+		}
 	}
 	if (!kmer_file && opt.snp) {
 		fprintf(stderr, "[E::%s] --kmers is required in pgkmc count (see pgkmc detect)\n", __func__);
@@ -209,19 +221,25 @@ int main_count(int argc, char *argv[])
 	}
 
 	// start
+	if (!opt.snp) { // write_info is only for SNP-mers
+		opt.write_info = 0; 
+		opt.write_mko = 0;
+	}
+
 	if (opt.snp) {
 		// first step: load specific SNP-mers
 		fprintf(stderr, "[M::%s] repopulating hash table from file '%s'\n", __func__, kmer_file);
 		h = pg_msht_repopulate(kmer_file, &opt);
+		if (!h) return 1;
 
 		// second step: count specific SNP-mers
 		if (fn_out == NULL) fn_out = "-"; // redirect output to stdout
-		pg_count(argv[o.ind], bed_fn, &opt, h, fn_out);
+		if (pg_count(argv[o.ind], bed_fn, &opt, h, fn_out)) return 1;
 		fprintf(stderr, "[M::%s] Counted required SNP-mers in %s\n", __func__, argv[o.ind]);
 	} else {
 		// second step: count specific k-mers
 		if (fn_out == NULL) fn_out = "-"; // redirect output to stdout
-		pg_count(argv[o.ind], bed_fn, &opt, 0, fn_out);
+		if (pg_count(argv[o.ind], bed_fn, &opt, 0, fn_out)) return 1;
 		fprintf(stderr, "[M::%s] Counted required k-mers in %s\n", __func__, argv[o.ind]);
 	}
 	
@@ -333,7 +351,7 @@ int main_clust(int argc, char *argv[])
  
 	// second step: genotype every chromosome against its matrix
 	if (fn_out == NULL) fn_out = "-"; // redirect output to stdout
-	pg_clust(argv[o.ind], &opt, h, matrix_fn, labels_fn, fn_out);
+	if (pg_clust(argv[o.ind], &opt, h, matrix_fn, labels_fn, fn_out)) return 1;
 	fprintf(stderr, "[M::%s] Genotyped %s\n", __func__, argv[o.ind]);
  
 	return 0;

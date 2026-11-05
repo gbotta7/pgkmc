@@ -138,8 +138,8 @@ pg_msht_t *pg_msht_repopulate(const char *kmer_file, pg_opt_t *opt);
 // void pg_msht_rearrange(pg_msht_t *h, long i);
 
 pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns, const pg_opt_t *opt, const char *out_fn);
-void pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msht_t *h, const char *out_fn);
-void pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *matrix_list_fn, const char *clusters_list_fn, const char *out_fn);
+int pg_count(const char *fa_fn, const char *bed_fn, const pg_opt_t *opt, pg_msht_t *h, const char *out_fn);
+int pg_clust(const char *fa_fn, const pg_opt_t *opt, pg_msht_t *h, const char *matrix_list_fn, const char *clusters_list_fn, const char *out_fn);
 
 void pg_dump_snpmers(const char *fn, pg_msht_t *h);
 void write_snpmer_tsv(const char *out_fn, pg_msht_t *h, const char *gnm_fn, int w, int w_mko);

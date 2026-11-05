@@ -474,7 +474,6 @@ pg_msht_t *pg_msht_repopulate(const char *kmer_file, pg_opt_t *opt)
 	fp = fopen(kmer_file, "r");
 	if (!fp) {
 		fprintf(stderr, "[E::%s] failed to open '%s'\n", __func__, kmer_file);
-		fclose(fp);
 		return NULL;
 	}
 
@@ -564,7 +563,7 @@ pg_msht_t *pg_msht_repopulate(const char *kmer_file, pg_opt_t *opt)
 
 		if (flanks == rev_flanks) {
 			if (opt->verbose) {
-				fprintf(stderr, "[E::%s] skipped SNP-mer %s%c%s because it is palindromic\n", __func__, left, a1, right);
+				fprintf(stderr, "[W::%s] skipped SNP-mer %s%c%s because it is palindromic\n", __func__, left, a1, right);
 			}
 			continue;
 		}
