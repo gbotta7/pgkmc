@@ -312,7 +312,7 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 		if (fp == 0) {
 			fprintf(stderr, "[E::%s] failed to open '%s'\n", __func__, fa_fn);
 			pg_msht_destroy(pl.sh, opt->write_info);
-			return 0;
+			return NULL;
 		}
 		pl.ks = kseq_init(fp);
 		pl.fa_fn = fa_fn;
@@ -327,7 +327,7 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 				kseq_destroy(pl.ks);
 				gzclose(fp);
 				pg_msht_destroy(pl.sh, opt->write_info);
-				return 1;
+				return NULL;
 			}
 		}
 
@@ -379,6 +379,7 @@ pg_msht_t *pg_detect(const char **fa_fns, const char **bed_fns, const int n_fns,
 		if (out_fn == NULL) out_fn = "-";
 		pg_dump_snpmers(out_fn, pl.sh);
 	}
+	
     return pl.sh;
 }
 
